@@ -1,15 +1,22 @@
+/eval import logging
 import os
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from ChampuMusic import app
+from pyrogram.types import Message
 from TheApi import api
+from ChampuMusic import app
 
-@app.on_message(filters.command(["tgm", "tgt", "telegraph", "tl"]))
+# Setup logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+@app.on_message(filters.command(["tgm"]))
 async def get_link_group(client, message):
+    user = message.from_user
+    logging.info(f"Received media from {user.first_name}")
+
+    # Check if the message is a reply to a media message
     if not message.reply_to_message:
-        return await message.reply_text(
-            "Pʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇᴅɪᴀ ᴛᴏ ᴜᴘʟᴏᴀᴅ ᴏɴ Tᴇʟᴇɢʀᴀᴘʜ"
-        )
+        await message.reply_text("Please reply to a media message.")
+        return
 
     media = message.reply_to_message
     file_size = 0
@@ -21,37 +28,28 @@ async def get_link_group(client, message):
         file_size = media.document.file_size
 
     if file_size > 15 * 1024 * 1024:
-        return await message.reply_text("Pʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴍᴇᴅɪᴀ ғɪʟᴇ ᴜɴᴅᴇʀ 15MB.")
+        await message.reply_text("Please provide a media file under 15MB.")
+        return
 
     try:
-        text = await message.reply("Pʀᴏᴄᴇssɪɴɢ...")
+        text = await message.reply_text("Processing...")
 
         async def progress(current, total):
             try:
-                await text.edit_text(f"📥 Dᴏᴡɴʟᴏᴀᴅɪɴɢ... {current * 100 / total:.1f}%")
+                await text.edit_text(f"Downloading... {current * 100 / total:.1f}%")
             except Exception:
                 pass
 
         try:
             local_path = await media.download(progress=progress)
-            await text.edit_text("📤 Uᴘʟᴏᴀᴅɪɴɢ ᴛᴏ ᴛᴇʟᴇɢʀᴀᴘʜ...")
+            await text.edit_text("Uploading to Telegraph...")
 
             upload_result = api.upload_image(local_path)
-            upload_path = upload_result.get("path")
 
-            await text.edit_text(
-                f"🌐 | [ᴜᴘʟᴏᴀᴅᴇᴅ ʟɪɴᴋ]({upload_path})",
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton(
-                                "ᴜᴘʟᴏᴀᴅᴇᴅ ғɪʟᴇ",
-                                url=upload_path,
-                            )
-                        ]
-                    ]
-                ),
-            )
+            if isinstance(upload_result, str):
+                await text.edit_text(f"Here is your link: {upload_result}")
+            else:
+                await text.edit_text(f"Failed to upload the media. Please try again later.\n\nReason: {upload_result}")
 
             try:
                 os.remove(local_path)
@@ -59,7 +57,7 @@ async def get_link_group(client, message):
                 pass
 
         except Exception as e:
-            await text.edit_text(f"❌ Fɪʟᴇ ᴜᴘʟᴏᴀᴅ ғᴀɪʟᴇᴅ\n\n<i>Rᴇᴀsᴏɴ: {e}</i>")
+            await text.edit_text(f"Failed to upload the media. Please try again later.\n\nReason: {e}")
             try:
                 os.remove(local_path)
             except Exception:
@@ -67,23 +65,3 @@ async def get_link_group(client, message):
             return
     except Exception:
         pass
-
-
-__HELP__ = """
-**ᴛᴇʟᴇɢʀᴀᴘʜ ᴜᴘʟᴏᴀᴅ ʙᴏᴛ ᴄᴏᴍᴍᴀɴᴅs**
-
-ᴜsᴇ ᴛʜᴇsᴇ ᴄᴏᴍᴍᴀɴᴅs ᴛᴏ ᴜᴘʟᴏᴀᴅ ᴍᴇᴅɪᴀ ᴛᴏ ᴛᴇʟᴇɢʀᴀᴘʜ:
-
-- `/tgm`: ᴜᴘʟᴏᴀᴅ ʀᴇᴘʟɪᴇᴅ ᴍᴇᴅɪᴀ ᴛᴏ ᴛᴇʟᴇɢʀᴀᴘʜ.
-- `/tgt`: sᴀᴍᴇ ᴀs `/tgm`.
-- `/telegraph`: sᴀᴍᴇ ᴀs `/tgm`.
-- `/tl`: sᴀᴍᴇ ᴀs `/tgm`.
-
-**ᴇxᴀᴍᴘʟᴇ:**
-- ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴘʜᴏᴛᴏ ᴏʀ ᴠɪᴅᴇᴏ ᴡɪᴛʜ `/tgm` ᴛᴏ ᴜᴘʟᴏᴀᴅ ɪᴛ.
-
-**ɴᴏᴛᴇ:**
-ʏᴏᴜ ᴍᴜsᴛ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇᴅɪᴀ ғɪʟᴇ ғᴏʀ ᴛʜᴇ ᴜᴘʟᴏᴀᴅ ᴛᴏ ᴡᴏʀᴋ.
-"""
-
-__MODULE__ = "Tᴇʟᴇɢʀᴀᴘʜ"
