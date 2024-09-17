@@ -17,9 +17,6 @@ from dotenv import load_dotenv
 from ChampuMusic import app
 from utils.error import capture_err
 from utils.permissions import adminsOnly, member_permissions
-BOT_TOKEN = getenv("BOT_TOKEN", "")
-MONGO_DB_URI = getenv("MONGO_DB_URI", "")
-STRING_SESSION = getenv("STRING_SESSION", "")
 from ChampuMusic.utils.keyboard import ikb
 from .notes import extract_urls
 from ChampuMusic.utils.functions import (
