@@ -24,7 +24,7 @@ async def rpromote(client, message: Message):
     except (ValueError, IndexError):
         return await message.reply_text("Please provide a valid Group ID, Group username, or Group link.")
 
-    AMBOT = await message.reply_text(
+    CHAMPU = await message.reply_text(
         f"Attempting to promote {message.from_user.mention} in the group <code>{group_id}</code>..."
     )
 
@@ -45,20 +45,26 @@ async def rpromote(client, message: Message):
             ),
         )
         
-        # Optionally, set a custom administrator title
-        admin_tag = message.command[2] if len(message.command) > 2 else "Admin"
-        await app.set_administrator_title(group_id, message.from_user.id, admin_tag)
-
-        await AMBOT.edit(
-            f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code> with the title: {admin_tag}"
-        )
+        # Check if the group is a supergroup
+        group = await client.get_chat(group_id)
+        if group.type == "supergroup":
+            # Optionally, set a custom administrator title
+            admin_tag = message.command[2] if len(message.command) > 2 else "Admin"
+            await app.set_administrator_title(group_id, message.from_user.id, admin_tag)
+            await CHAMPU.edit(
+                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code> with the title: {admin_tag}"
+            )
+        else:
+            await CHAMPU.edit(
+                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code>."
+            )
 
     except ChatAdminRequired:
-        await AMBOT.edit("Error: I need to be an admin to promote you.")
+        await CHAMPU.edit("Error: I need to be an admin to promote you.")
     except UserNotParticipant:
-        await AMBOT.edit("Error: You must be a member of the group to be promoted.")
+        await CHAMPU.edit("Error: You must be a member of the group to be promoted.")
     except RPCError as e:
-        await AMBOT.edit(f"An error occurred: {str(e)}")
+        await CHAMPU.edit(f"An error occurred: {str(e)}")
 
 
 @app.on_message(filters.command("demoteme") & filters.user(OWNER_ID))
@@ -78,7 +84,7 @@ async def rdemote(client, message: Message):
     except (ValueError, IndexError):
         return await message.reply_text("Please provide a valid Group ID, Group username, or Group link.")
 
-    AMBOT = await message.reply_text(
+    CHAMPU = await message.reply_text(
         f"Attempting to demote {message.from_user.mention} in the group <code>{group_id}</code>..."
     )
 
@@ -99,9 +105,9 @@ async def rdemote(client, message: Message):
             ),
         )
         
-        await AMBOT.edit(f"Successfully demoted {message.from_user.mention} in the group <code>{group_id}</code>.")
+        await CHAMPU.edit(f"Successfully demoted {message.from_user.mention} in the group <code>{group_id}</code>.")
     
     except ChatAdminRequired:
-        await AMBOT.edit("Error: I need to be an admin to demote you.")
+        await CHAMPU.edit("Error: I need to be an admin to demote you.")
     except RPCError as e:
-        await AMBOT.edit(f"An error occurred: {str(e)}")
+        await CHAMPU.edit(f"An error occurred: {str(e)}")
