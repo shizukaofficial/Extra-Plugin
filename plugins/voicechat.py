@@ -81,21 +81,21 @@ from ChampuMusic import app
 @app.on_message(filters.video_chat_started)
 async def brah(_, msg):
     if msg.chat.permissions.can_send_messages:
-        await msg.reply("**😍ᴠɪᴅᴇᴏ ᴄʜᴀᴛ sᴛᴀʀᴛᴇᴅ🥳**")
+        user = msg.from_user
+        await msg.reply(f"**{user.mention} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
     else:
-        LOGGER.error("Bot does not have permission to send messages in this chat.")
+        LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
 
 # vc off
 @app.on_message(filters.video_chat_ended)
 async def brah2(_, msg):
     if msg.chat.permissions.can_send_messages:
-        await msg.reply("**😕ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ💔**")
+        user = msg.from_user
+        await msg.reply(f"**{user.mention} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
     else:
-        LOGGER.error("Bot does not have permission to send messages in this chat.")
+        LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
-
-
 
 @app.on_message(filters.command("math", prefixes="/"))
 def calculate_math(client, message):
