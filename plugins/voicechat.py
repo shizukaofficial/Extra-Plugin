@@ -83,7 +83,10 @@ async def brah(_, msg):
     if msg.chat.permissions.can_send_messages:
         if msg.from_user:
             user = msg.from_user
-            await msg.reply(f"**{user.mention} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
+            if user.username:
+                await msg.reply(f"**@{user.username} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
+            else:
+                await msg.reply(f"**{user.first_name} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
         else:
             await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ sᴛᴀʀᴛᴇᴅ! 😍")
     else:
@@ -96,7 +99,10 @@ async def brah2(_, msg):
     if msg.chat.permissions.can_send_messages:
         if msg.from_user:
             user = msg.from_user
-            await msg.reply(f"**{user.mention} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
+            if user.username:
+                await msg.reply(f"**@{user.username} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
+            else:
+                await msg.reply(f"**{user.first_name} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
         else:
             await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ ᴇɴᴅᴇᴅ! 😕")
     else:
