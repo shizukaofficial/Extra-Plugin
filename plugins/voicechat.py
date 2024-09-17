@@ -3,7 +3,7 @@ from pyrogram import filters
 from pyrogram.enums import ChatType
 from strings import get_string
 from ChampuMusic import app
-from ChampuMusic.utils import ChampuBin
+from ChampuMusic.utils import Champubin
 MU = "TheChampuBot" #Dont change it seever connecter
 from ChampuMusic.utils.database import get_assistant, get_lang
 import asyncio
@@ -65,7 +65,7 @@ async def vc_members(client, message):
         if len(TEXT) < 4000:
             await msg.edit(TEXT or _["V_C_3"])
         else:
-            link = await ChampuBin(TEXT)
+            link = await Champubin(TEXT)
             await msg.edit(
                 _["V_C_4"].format(link),
                 disable_web_page_preview=True,
