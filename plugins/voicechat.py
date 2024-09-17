@@ -80,13 +80,20 @@ from ChampuMusic import app
 # vc on
 @app.on_message(filters.video_chat_started)
 async def brah(_, msg):
-    await msg.reply("**😍ᴠɪᴅᴇᴏ ᴄʜᴀᴛ sᴛᴀʀᴛᴇᴅ🥳**")
-
+    if msg.chat.permissions.can_send_messages:
+        await msg.reply("**😍ᴠɪᴅᴇᴏ ᴄʜᴀᴛ sᴛᴀʀᴛᴇᴅ🥳**")
+    else:
+        LOGGER.error("Bot does not have permission to send messages in this chat.")
+        # You can also send a notification to the bot owner or admin here
 
 # vc off
 @app.on_message(filters.video_chat_ended)
 async def brah2(_, msg):
-    await msg.reply("**😕ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ💔**")
+    if msg.chat.permissions.can_send_messages:
+        await msg.reply("**😕ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ💔**")
+    else:
+        LOGGER.error("Bot does not have permission to send messages in this chat.")
+        # You can also send a notification to the bot owner or admin here
 
 
 
