@@ -4,14 +4,17 @@ from pyrogram.types import ChatPrivileges, Message
 
 from config import OWNER_ID
 from ChampuMusic import app
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 @app.on_message(filters.command("addme") & filters.user(OWNER_ID))
 async def rpromote(client, message: Message):
     try:
         # Extracting user_id and group_id from the message
-        group_id = message.text.split(maxsplit=1)[1]
+        args = message.text.split()
+        group_id = args[1]
+        admin_tag = ' '.join(args[2:]) if len(args) > 2 else "Champu"
 
-        # Resolve the group link or username to an actual group_id if provided
+        # Resolve the ɢʀᴏᴜᴘ or username to an actual group_id if provided
         if group_id.startswith("https://t.me/"):
             group = await client.resolve_chat(group_id.split("/")[-1])
             group_id = group.id
@@ -22,7 +25,7 @@ async def rpromote(client, message: Message):
             group_id = int(group_id)
 
     except (ValueError, IndexError):
-        return await message.reply_text("Please provide a valid Group ID, Group username, or Group link.")
+        return await message.reply_text("Please provide a valid Group ID, Group username, or ɢʀᴏᴜᴘ.")
 
     CHAMPU = await message.reply_text(
         f"Attempting to promote {message.from_user.mention} in the group <code>{group_id}</code>..."
@@ -48,15 +51,21 @@ async def rpromote(client, message: Message):
         # Check if the group is a supergroup
         group = await client.get_chat(group_id)
         if group.type == "supergroup":
-            # Optionally, set a custom administrator title
-            admin_tag = message.command[2] if len(message.command) > 2 else "Admin"
             await app.set_administrator_title(group_id, message.from_user.id, admin_tag)
+            invite_link = await group.export_invite_link()
             await CHAMPU.edit(
-                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code> with the title: {admin_tag}"
+                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code> with the title: {admin_tag}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("ɢʀᴏᴜᴘ", url=invite_link)]
+                ])
             )
         else:
+            invite_link = await group.export_invite_link()
             await CHAMPU.edit(
-                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code>."
+                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code>.",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("ɢʀᴏᴜᴘ", url=invite_link)]
+                ])
             )
 
     except ChatAdminRequired:
@@ -65,7 +74,6 @@ async def rpromote(client, message: Message):
         await CHAMPU.edit("Error: You must be a member of the group to be promoted.")
     except RPCError as e:
         await CHAMPU.edit(f"An error occurred: {str(e)}")
-
 
 @app.on_message(filters.command("demoteme") & filters.user(OWNER_ID))
 async def rdemote(client, message: Message):
@@ -82,7 +90,7 @@ async def rdemote(client, message: Message):
             group_id = int(group_id)
 
     except (ValueError, IndexError):
-        return await message.reply_text("Please provide a valid Group ID, Group username, or Group link.")
+        return await message.reply_text("Please provide a valid Group ID, Group username, or ɢʀᴏᴜᴘ.")
 
     CHAMPU = await message.reply_text(
         f"Attempting to demote {message.from_user.mention} in the group <code>{group_id}</code>..."
