@@ -81,8 +81,11 @@ from ChampuMusic import app
 @app.on_message(filters.video_chat_started)
 async def brah(_, msg):
     if msg.chat.permissions.can_send_messages:
-        user = msg.from_user
-        await msg.reply(f"**{user.mention} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
+        if msg.from_user:
+            user = msg.from_user
+            await msg.reply(f"**{user.mention} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
+        else:
+            await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ sᴛᴀʀᴛᴇᴅ! 😍")
     else:
         LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
@@ -91,8 +94,11 @@ async def brah(_, msg):
 @app.on_message(filters.video_chat_ended)
 async def brah2(_, msg):
     if msg.chat.permissions.can_send_messages:
-        user = msg.from_user
-        await msg.reply(f"**{user.mention} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
+        if msg.from_user:
+            user = msg.from_user
+            await msg.reply(f"**{user.mention} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
+        else:
+            await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ ᴇɴᴅᴇᴅ! 😕")
     else:
         LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
