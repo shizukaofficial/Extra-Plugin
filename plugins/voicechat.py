@@ -84,13 +84,14 @@ async def brah(_, msg):
         if msg and msg.from_user:
             user = msg.from_user
             if user.username:
-                await msg.reply(f"**@{user.username} started the voice chat! 😊**")
-            elif user.first_name:
-                await msg.reply(f"**{user.first_name} started the voice chat! 😊**")
+                mention = f"@{user.username}"
             else:
-                await msg.reply("Someone started the voice chat! 😊")
+                mention = user.mention
+                await msg.reply(f"**{mention} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ! 😊**")
+        else:
+            await msg.reply("sᴏᴍᴇᴏɴᴇ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ! 😊")
     else:
-        LOGGER.error("Bot does not have permission to send messages in this chat.")
+        LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
 # vc off
 @app.on_message(filters.video_chat_ended)
@@ -99,11 +100,12 @@ async def brah2(_, msg):
         if msg and msg.from_user:
             user = msg.from_user
             if user.username:
-                await msg.reply(f"**@{user.username} ended the video chat! 😕**")
-            elif user.first_name:
-                await msg.reply(f"**{user.first_name} ended the video chat! 😕**")
+                mention = f"@{user.username}"
+            else:
+                mention = user.mention
+                await msg.reply(f"**{mention} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
         else:
-            await msg.reply("Someone ended the video chat! 😕")
+            await msg.reply("sᴏᴍᴇᴏɴᴇ ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕")
     else:
         LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
