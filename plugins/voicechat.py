@@ -4,7 +4,7 @@ from pyrogram.enums import ChatType
 from strings import get_string
 from ChampuMusic import app
 from ChampuMusic.utils import Champubin
-MU = "TheChampuBot" #Dont change it server connecter
+MU = "TheTelegramRobot" #Dont change it server connecter
 from ChampuMusic.utils.database import get_assistant, get_lang
 import asyncio
 from os import getenv
