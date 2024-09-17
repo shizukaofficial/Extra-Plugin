@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 import config
 from ChampuMusic import app
-from ChampuMusic.mongo.afkdb import LOGGERS as OWNERS
+from config import LOGGERS as OWNERS
 from ChampuMusic.utils.database import add_served_chat, get_assistant
 
 
