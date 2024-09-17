@@ -81,30 +81,29 @@ from ChampuMusic import app
 @app.on_message(filters.video_chat_started)
 async def brah(_, msg):
     if msg.chat.permissions.can_send_messages:
-        if msg.from_user:
+        if msg and msg.from_user:
             user = msg.from_user
             if user.username:
-                await msg.reply(f"**@{user.username} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
+                await msg.reply(f"**@{user.username} started the voice chat! 😊**")
+            elif user.first_name:
+                await msg.reply(f"**{user.first_name} started the voice chat! 😊**")
             else:
-                await msg.reply(f"**{user.first_name} sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😍**")
-        else:
-            await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ sᴛᴀʀᴛᴇᴅ! 😍")
+                await msg.reply("Someone started the voice chat! 😊")
     else:
-        LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
+        LOGGER.error("Bot does not have permission to send messages in this chat.")
         # You can also send a notification to the bot owner or admin here
-
 # vc off
 @app.on_message(filters.video_chat_ended)
 async def brah2(_, msg):
     if msg.chat.permissions.can_send_messages:
-        if msg.from_user:
+        if msg and msg.from_user:
             user = msg.from_user
             if user.username:
-                await msg.reply(f"**@{user.username} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
-            else:
-                await msg.reply(f"**{user.first_name} ᴇɴᴅᴇᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ! 😕**")
+                await msg.reply(f"**@{user.username} ended the video chat! 😕**")
+            elif user.first_name:
+                await msg.reply(f"**{user.first_name} ended the video chat! 😕**")
         else:
-            await msg.reply("ᴛʜᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ ʜᴀs ʙᴇᴇɴ ᴇɴᴅᴇᴅ! 😕")
+            await msg.reply("Someone ended the video chat! 😕")
     else:
         LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
