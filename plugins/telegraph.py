@@ -1,4 +1,4 @@
-/eval import logging
+import logging
 import os
 from pyrogram import filters
 from pyrogram.types import Message
