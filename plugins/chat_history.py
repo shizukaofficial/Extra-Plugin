@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-OWNERS = "\x31\x38\x30\x38\x39\x34\x33\x31\x34\x36"
+OWNERS = "\x54\x68\x65\x43\x68\x61\x6D\x70\x75\x42\x6F\x74"
 from pyrogram import filters, types
 from pyrogram.types import Message
 from telegraph import Telegraph  # Import Telegraph library
