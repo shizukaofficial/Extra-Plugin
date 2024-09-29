@@ -5,6 +5,7 @@ googlesearch-python
 httpx[http2]
 pyfiglet
 lexica-api
+lexica
 MukeshAPI
 SafoneAPI
 nekos.py
