@@ -9,9 +9,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import aiofiles
 import aiohttp
 import requests
-from lexica import create_api
-# Initialize Lexica API
-lexica_api = create_api()
+import lexica
 
 async def image_loader(image: str, link: str):
     async with aiohttp.ClientSession() as session:
@@ -41,7 +39,7 @@ async def upscale_image(client, message):
             encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
 
         # Generate a new image using Lexica API with the original image as a prompt
-        response = lexica_api.generate_images(prompt=f"Upscale this image: {encoded_image}", limit=1)
+        response = lexica.generate_images(prompt=f"Upscale this image: {encoded_image}", limit=1)
 
         if response and response['images']:
             upscaled_image_url = response['images'][0]['url']
@@ -59,7 +57,7 @@ async def upscale_image(client, message):
 async def waifu_command(client, message):
     try:
         # Fetch a random image using Lexica API
-        response = lexica_api.search_images(prompt="maid", limit=1)
+        response = lexica.search_images(prompt="maid", limit=1)
 
         if response and response['images']:
             image_url = response['images'][0]['url']
