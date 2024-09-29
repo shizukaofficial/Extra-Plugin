@@ -9,9 +9,9 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import aiofiles
 import aiohttp
 import requests
-import lexica
+from lexica import create_api
 # Initialize Lexica API
-lexica_api = lexica()
+lexica_api = create_api()
 
 async def image_loader(image: str, link: str):
     async with aiohttp.ClientSession() as session:
