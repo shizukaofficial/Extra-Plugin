@@ -5,9 +5,9 @@ googlesearch-python
 httpx[http2]
 pyfiglet
 lexica-api
-ChampuAPI
 SafoneAPI
 nekos.py
 telegraph
 uuid
-git+https://github.com/TheChampu/TheAPI@main
+git+https://github.com/TheChampu/TheAPI
+git+https://github.com/TheChampu/ChampuAPI
