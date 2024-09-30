@@ -1,5 +1,5 @@
 import requests
-from MukeshAPI import api
+from ChampuAPI import api
 from pyrogram import filters
 from pyrogram.enums import ChatAction
 from ChampuMusic import app
