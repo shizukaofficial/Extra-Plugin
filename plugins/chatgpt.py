@@ -1,6 +1,7 @@
 from pyrogram import filters
 from pyrogram.enums import ChatAction
 from TheAPI import api
+from requests.exceptions import JSONDecodeError  # Add this line
 
 from ChampuMusic import app
 from config import BANNED_USERS
@@ -23,7 +24,7 @@ async def chatgpt_chat(bot, message):
     try:
         results = api.chatgpt(user_input)
         await message.reply_text(results)
-    except requests.exceptions.JSONDecodeError as e:
+    except JSONDecodeError as e:  # Fix this line
         await message.reply_text("Error: Invalid JSON response from API")
         print(f"Error: {e}")
     except Exception as e:
