@@ -20,8 +20,15 @@ async def chatgpt_chat(bot, message):
         user_input = " ".join(message.command[1:])
 
     await bot.send_chat_action(message.chat.id, ChatAction.TYPING)
-    results = api.chatgpt(user_input)
-    await message.reply_text(results)
+    try:
+        results = api.chatgpt(user_input)
+        await message.reply_text(results)
+    except requests.exceptions.JSONDecodeError as e:
+        await message.reply_text("Error: Invalid JSON response from API")
+        print(f"Error: {e}")
+    except Exception as e:
+        await message.reply_text("An error occurred. Please try again later.")
+        print(f"Error: {e}")
 
 
 __MODULE__ = "CʜᴀᴛGᴘᴛ"
