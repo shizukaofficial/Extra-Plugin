@@ -1,5 +1,5 @@
 from pyrogram import filters
-from TheApi import api
+from TheAPI import api
 
 from config import LOGGER_ID
 from ChampuMusic import app

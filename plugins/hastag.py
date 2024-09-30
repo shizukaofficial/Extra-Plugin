@@ -1,6 +1,6 @@
 from pyrogram import filters
 from ChampuMusic import app
-from TheApi import api
+from TheAPI import api
 
 
 @app.on_message(filters.command("hastag"))

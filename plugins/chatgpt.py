@@ -1,6 +1,6 @@
 from pyrogram import filters
 from pyrogram.enums import ChatAction
-from TheApi import api
+from TheAPI import api
 
 from ChampuMusic import app
 from config import BANNED_USERS
