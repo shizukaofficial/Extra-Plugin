@@ -1,3 +1,4 @@
+import random
 import asyncio
 import time
 from logging import getLogger
@@ -20,6 +21,10 @@ SPAM_THRESHOLD = 2
 SPAM_WINDOW_SECONDS = 5
 
 LOGGER = getLogger(__name__)
+
+champu = ["ʜᴇʏ", "ʜᴏᴡ ᴀʀᴇ ʏᴏᴜ?", "ʜᴇʟʟᴏ", "ʜɪ", "ᴋᴀɪsᴇ ʜᴏ?", "ᴡᴇʟᴄᴏᴍᴇ ᴊɪ", "ᴡᴇʟᴄᴏᴍᴇ",
+          "ᴀᴀɪʏᴇ ᴀᴀɪʏᴇ", "ᴋᴀʜᴀ ᴛʜᴇ ᴋᴀʙsᴇ ᴡᴀɪᴛ ᴋᴀʀ ʀʜᴇ ᴀᴘᴋᴀ", "ɪss ɢʀᴏᴜᴘ ᴍᴀɪɴ ᴀᴘᴋᴀ sᴡᴀɢᴀᴛ ʜᴀɪ",
+          "ᴏʀ ʙᴀᴛᴀᴏ sᴜʙ ʙᴀᴅʜɪʏᴀ", "ᴀᴘᴋᴇ ᴀᴀɴᴇ sᴇ ɢʀᴏᴜᴘ ᴏʀ ᴀᴄʜʜᴀ ʜᴏɢʏᴀ"]
 
 class temp:
     ME = None
@@ -108,7 +113,7 @@ async def greet_new_members(_, member: ChatMemberUpdated):
         user = member.new_chat_member.user
 
         if member.new_chat_member and not member.old_chat_member:
-            welcome_text = f"{user.mention}, ʜᴏᴡ ᴀʀᴇ ʏᴏᴜ?"
+            welcome_text = f"{user.mention}, {random.choice(champu)}"
             await userbot.send_message(chat_id, text=welcome_text)
 
     except Exception as e:
