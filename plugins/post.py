@@ -3,15 +3,28 @@ from ChampuMusic import app
 from config import OWNER_ID
 from pyrogram.types import Message
 
-
 @app.on_message(filters.command(["post"], prefixes=["/", "."]) & filters.user(OWNER_ID))
-async def copy_messages(_, message):
-
+async def copy_messages(_, message: Message):
     if message.reply_to_message:
-      
-        destination_group_id = -1001423108989
- 
-
+        # Split the command arguments
+        args = message.text.split()[1:]
         
-        await message.reply_to_message.copy(destination_group_id)
-        await message.reply("ᴘᴏsᴛ sᴜᴄᴄᴇssғᴜʟ ᴅᴏɴᴇ ")
+        if args:
+            try:
+                # Try to get the destination group ID from the first argument
+                destination_group_id = int(args[0])
+            except ValueError:
+                await message.reply("Invalid group ID. Please provide a valid integer.")
+                return
+        else:
+            # If no argument is provided, use the default group ID
+            destination_group_id = -1001423108989
+
+        try:
+            # Attempt to copy the message to the specified group
+            await message.reply_to_message.copy(destination_group_id)
+            await message.reply(f"ᴘᴏsᴛ sᴜᴄᴄᴇssғᴜʟʟʏ sᴇɴᴛ ᴛᴏ ɢʀᴏᴜᴘ {destination_group_id}")
+        except Exception as e:
+            await message.reply(f"Failed to send the post. Error: {str(e)}")
+    else:
+        await message.reply("Please reply to a message to post it.")
