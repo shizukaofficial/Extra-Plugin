@@ -21,7 +21,7 @@ async def react_to_message(client, message: Message):
                 await assistant.send_reaction(
                     chat_id=message.chat.id,
                     message_id=message.id,
-                    emoji='❤️'
+                    Emoji='❤️'
                 )
             
             await message.reply(f"Reaction {emoji} sent successfully!")
@@ -39,6 +39,16 @@ async def auto_react_to_channel_post(client, message: Message):
             message_id=message.id,
             emoji='👍'  # You can change this to any emoji you prefer
         )
+                    # Get the assistant client
+        assistant = await get_assistant(message.chat.id)
+        if assistant:
+            await assistant.send_reaction(
+                chat_id=message.chat.id,
+                message_id=message.id,
+                Emoji='❤️'
+            )
+            
+            await message.reply(f"Reaction {emoji} sent successfully!")
         print(f"Reacted to message {message.id} in channel {message.chat.title}")
     except Exception as e:
         print(f"Failed to react to channel post. Error: {str(e)}")
