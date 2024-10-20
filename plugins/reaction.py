@@ -21,6 +21,3 @@ async def react_to_message(client, message: Message):
             await message.reply(f"Failed to send reaction. Error: {str(e)}")
     else:
         await message.reply("Please reply to a message to react to it.")
-
-# Run the bot
-app.run()
