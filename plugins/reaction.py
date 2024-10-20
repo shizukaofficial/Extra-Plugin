@@ -4,7 +4,7 @@ from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant, is_reactions_enabled, enable_reactions, disable_reactions
 
 # Replace this with your actual log group ID
-LOG_GROUP_ID = -1001234567890
+LOG_GROUP_ID = -1001423108989
 
 async def send_to_log_group(message: str):
     try:
