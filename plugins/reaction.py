@@ -21,3 +21,17 @@ async def react_to_message(client, message: Message):
             await message.reply(f"Failed to send reaction. Error: {str(e)}")
     else:
         await message.reply("Please reply to a message to react to it.")
+
+# New function to automatically react to new posts in a channel
+@app.on_message(filters.channel)
+async def auto_react_to_channel_post(client, message: Message):
+    try:
+        # Send a reaction to the new message
+        await client.send_reaction(
+            chat_id=message.chat.id,
+            message_id=message.id,
+            emoji='👍'  # You can change this to any emoji you prefer
+        )
+        print(f"Reacted to message {message.id} in channel {message.chat.title}")
+    except Exception as e:
+        print(f"Failed to react to channel post. Error: {str(e)}")
