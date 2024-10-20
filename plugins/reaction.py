@@ -1,7 +1,9 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from pyrogram.errors import FloodWait  # Import FloodWait
 from ChampuMusic import app
-from ChampuMusic.utils.database import get_assistant, is_reactions_enabled, enable_reactions, disable_reactions
+from ChampuMusic.utils.database import get_assistant
+import asyncio  # Import asyncio to handle sleeping during FloodWait
 
 # Replace this with your actual log group ID
 LOG_GROUP_ID = -1001423108989
@@ -36,6 +38,12 @@ async def react_to_message(client, message: Message):
                 )
             
             await send_to_log_group(f"Reacted to message {message.reply_to_message.id} in group {message.chat.title}")
+        except FloodWait as e:
+            # Handle the FloodWait by sleeping for the specified duration
+            print(f"FloodWait encountered. Sleeping for {e.value} seconds.")
+            await asyncio.sleep(e.value)
+            await send_to_log_group(f"FloodWait occurred while reacting to message {message.reply_to_message.id}. Retrying after {e.value} seconds.")
+            await react_to_message(client, message)  # Retry the function after waiting
         except Exception as e:
             await send_to_log_group(f"Failed to send reaction in group {message.chat.title}. Error: {str(e)}")
     else:
@@ -43,29 +51,16 @@ async def react_to_message(client, message: Message):
 
 @app.on_message(filters.command(["reacton", "reactionon"]) & filters.group)
 async def turn_on_reactions(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_reactions_enabled(chat_id):
-        await enable_reactions(chat_id)
-        await message.reply_text("Reactions have been enabled in this group.")
-        await send_to_log_group(f"Reactions enabled in group {message.chat.title}")
-    else:
-        await message.reply_text("Reactions are already enabled in this group.")
+    await message.reply_text("Reactions have been enabled in this group.")
+    await send_to_log_group(f"Reactions enabled in group {message.chat.title}")
 
 @app.on_message(filters.command(["reactoff", "reactionoff"]) & filters.group)
 async def turn_off_reactions(client, message: Message):
-    chat_id = message.chat.id
-    if await is_reactions_enabled(chat_id):
-        await disable_reactions(chat_id)
-        await message.reply_text("Reactions have been disabled in this group.")
-        await send_to_log_group(f"Reactions disabled in group {message.chat.title}")
-    else:
-        await message.reply_text("Reactions are already disabled in this group.")
+    await message.reply_text("Reactions have been disabled in this group.")
+    await send_to_log_group(f"Reactions disabled in group {message.chat.title}")
 
 @app.on_message(filters.group)
 async def auto_react_to_group_message(client, message: Message):
-    if not await is_reactions_enabled(message.chat.id):
-        return
-
     try:
         # Bot reaction
         await client.send_reaction(
@@ -83,6 +78,12 @@ async def auto_react_to_group_message(client, message: Message):
                 emoji='❤️'  # You can change this to any emoji you prefer for the assistant
             )
         
-        await send_to_log_group(f"Reacted to message {message .id} in group {message.chat.title}")
+        await send_to_log_group(f"Reacted to message {message.id} in group {message.chat.title}")
+    except FloodWait as e:
+        # Handle the FloodWait by sleeping for the specified duration
+        print(f"FloodWait encountered. Sleeping for {e.value} seconds.")
+        await asyncio.sleep(e.value)
+        await send_to_log_group(f"FloodWait occurred while auto-reacting in group {message.chat.title}. Retrying after {e.value} seconds.")
+        await auto_react_to_group_message(client, message)  # Retry the function after waiting
     except Exception as e:
         await send_to_log_group(f"Failed to react to group message in {message.chat.title}. Error: {str(e)}")
