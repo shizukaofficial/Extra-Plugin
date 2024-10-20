@@ -7,7 +7,14 @@ from ChampuMusic.utils.database import get_assistant
 async def react_to_message(client, message: Message):
     if message.reply_to_message:
         try:
-            emoji = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else '👍'
+            emoji = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else '❤️'
+            
+            # Bot reaction
+            await client.send_reaction(
+                chat_id=message.chat.id,
+                message_id=message.reply_to_message.id,
+                emoji='👀'  # Bot's reaction
+            )
             
             # Get the assistant client
             assistant = await get_assistant(message.chat.id)
@@ -16,25 +23,22 @@ async def react_to_message(client, message: Message):
                 await assistant.send_reaction(
                     chat_id=message.chat.id,
                     message_id=message.reply_to_message.id,
-                    emoji=emoji  # Note the lowercase 'emoji'
+                    emoji=emoji  # User-specified or default emoji
                 )
-                
-                await message.reply(f"Assistant reacted with {emoji} to the message!")
-            else:
-                await message.reply("Assistant not available for this chat.")
+            
         except Exception as e:
-            await message.reply(f"Failed to send reaction. Error: {str(e)}")
+            print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
-        await message.reply("Please reply to a message to react to it.")
+        print("ɴᴏ ᴍᴇssᴀɢᴇ ᴡᴀs ʀᴇᴘʟɪᴇᴅ ᴛᴏ.")
 
-@app.on_message(filters.channel)
-async def auto_react_to_channel_post(client, message: Message):
+@app.on_message(filters.group)
+async def auto_react_to_group_message(client, message: Message):
     try:
-        # Send a reaction to the new message
+        # Bot reaction
         await client.send_reaction(
             chat_id=message.chat.id,
             message_id=message.id,
-            emoji='❤️'  # You can change this to any emoji you prefer
+            emoji='👀'  # You can change this to any emoji you prefer for the bot
         )
         
         # Get the assistant client
@@ -43,9 +47,9 @@ async def auto_react_to_channel_post(client, message: Message):
             await assistant.send_reaction(
                 chat_id=message.chat.id,
                 message_id=message.id,
-                emoji='❤️'  # Note the lowercase 'emoji'
+                emoji='❤️'  # You can change this to any emoji you prefer for the assistant
             )
         
-        print(f"Reacted to message {message.id} in channel {message.chat.title}")
+        print(f"Reacted to message {message.id} in group {message.chat.title}")
     except Exception as e:
-        print(f"Failed to react to channel post. Error: {str(e)}")
+        print(f"Failed to react to group message. Error: {str(e)}")
