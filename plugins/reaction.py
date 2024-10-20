@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from ChampuMusic import app
+from ChampuMusic.utils.database import get_assistant
 # Define the command and emoji for the reaction
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
@@ -16,6 +17,9 @@ async def react_to_message(client, message: Message):
                 message_id=message.reply_to_message.id,
                 emoji=emoji
             )
+                    
+            # Userbot reaction 
+            await get_assistant.react(message.chat.id, message.id, '❤️')
             await message.reply(f"Reaction {emoji} sent successfully!")
         except Exception as e:
             await message.reply(f"Failed to send reaction. Error: {str(e)}")
