@@ -2,12 +2,13 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 from ChampuMusic import app
+from config import LOGGER_ID
 from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
 
 # Replace this with your actual log group chat ID
-LOG_GROUP_ID = -1001423108989
+LOGGER_ID = -1001423108989
 
 async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
@@ -15,7 +16,7 @@ async def send_log(message: str, chat_id: int, chat_title: str, message_id: int)
             [InlineKeyboardButton(text="Go to Message", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")]
         ])
         await app.send_message(
-            LOG_GROUP_ID,
+            LOGGER_ID,
             f"{message}\n\nChannel: {chat_title}\nChannel ID: `{chat_id}`\nMessage ID: `{message_id}`",
             reply_markup=channel_button
         )
@@ -59,7 +60,7 @@ async def react_to_message(client, message: Message):
             await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
         await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
-        
+
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
