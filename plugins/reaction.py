@@ -5,30 +5,23 @@ from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
-from ChampuMusic.plugins.tools.invitelink import link_command_handler
-
 
 # Replace this with your actual log group chat ID
 LOG_GROUP_ID = -1001423108989
 
-async def send_log(message: str):
+async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
-        # Get the invite link
-        invite_link = await link_command_handler(app, None)
-        
-        # Create the inline keyboard with the invite link
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("Join Channel", url=invite_link)]
+        channel_button = InlineKeyboardMarkup([
+            [InlineKeyboardButton(text="Go to Message", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")]
         ])
-        
-        # Send the message with the inline keyboard
         await app.send_message(
             LOG_GROUP_ID,
-            message,
-            reply_markup=keyboard
+            f"{message}\n\nChannel: {chat_title}\nChannel ID: `{chat_id}`\nMessage ID: `{message_id}`",
+            reply_markup=channel_button
         )
     except Exception as e:
-        print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʟᴏɢ ᴍᴇssᴀɢᴇ: {str(e)}")
+        print(f"Failed to send log: {e}")
+
 async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwargs):
     retries = 0
     while retries < max_retries:
@@ -37,7 +30,12 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
         except FloodWait as e:
             retries += 1
             delay = initial_delay * (2 ** retries) + random.uniform(0, 1)
-            await send_log(f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ʀᴇᴛʀʏɪɴɢ ɪɴ {delay:.2f} sᴇᴄᴏɴᴅs...")
+            await send_log(
+                f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ʀᴇᴛʀʏɪɴɢ ɪɴ {delay:.2f} sᴇᴄᴏɴᴅs...",
+                kwargs.get('chat_id', 'Unknown'),
+                kwargs.get('chat_title', 'Unknown'),
+                kwargs.get('message_id', 'Unknown')
+            )
             await asyncio.sleep(delay)
     raise Exception(f"ғᴀɪʟᴇᴅ ᴀғᴛᴇʀ {max_retries} ʀᴇᴛʀɪᴇs")
 
@@ -61,7 +59,7 @@ async def react_to_message(client, message: Message):
             await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
         await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
-
+        
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
@@ -81,6 +79,16 @@ async def auto_react_to_channel_post(client, message: Message):
                 emoji='❤️'
             )
         
-        await send_log(f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}")
+        await send_log(
+            f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ",
+            message.chat.id,
+            message.chat.title,
+            message.id
+        )
     except Exception as e:
-        await send_log(f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}")
+        await send_log(
+            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
+            message.chat.id,
+            message.chat.title,
+            message.id
+        )
