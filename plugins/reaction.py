@@ -3,24 +3,32 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
-from ChampuMusic.plugins.tools.invitelink import link_command_handler
 import asyncio
 import random
+from ChampuMusic.plugins.tools.invitelink import link_command_handler
+
 
 # Replace this with your actual log group chat ID
 LOG_GROUP_ID = -1001423108989
 
-async def send_log(message: str, chat_id: int = None, chat_title: str = None):
+async def send_log(message: str):
     try:
-        if chat_id and chat_title:
-            invite_link = await link_command_handler(chat_id)
-            keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("Channel Link", url=invite_link)]])
-            await app.send_message(LOG_GROUP_ID, message, reply_markup=keyboard)
-        else:
-            await app.send_message(LOG_GROUP_ID, message)
+        # Get the invite link
+        invite_link = await link_command_handler(app, None)
+        
+        # Create the inline keyboard with the invite link
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Join Channel", url=invite_link)]
+        ])
+        
+        # Send the message with the inline keyboard
+        await app.send_message(
+            LOG_GROUP_ID,
+            message,
+            reply_markup=keyboard
+        )
     except Exception as e:
         print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʟᴏɢ ᴍᴇssᴀɢᴇ: {str(e)}")
-
 async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwargs):
     retries = 0
     while retries < max_retries:
@@ -50,17 +58,29 @@ async def react_to_message(client, message: Message):
             else:
                 await message.reply("ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ᴀᴠᴀɪʟᴀʙʟᴇ ʜᴇʀᴇ ғᴏʀ ʀᴇᴀᴄᴛ ᴏɴ ᴍᴇssᴀɢᴇ.")
         except Exception as e:
-            await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀ ᴏʀ: {str(e)}")
+            await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
-        await message.reply("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ.")
+        await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
 
-@app.on_message(filters.new_chat_members)
-async def new_member(client, message: Message):
-    if message.new_chat_members:
-        for member in message.new_chat_members:
-            if member.id == client.me.id:
-                assistant = await get_assistant(message.chat.id)
-                if assistant:
-                    await retry_with_backoff(assistant.join_chat, message.chat.id)
-                else:
-                    await message.reply("ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ᴀᴠᴀɪʟᴀʙʟᴇ ʜᴇʀᴇ ғᴏʀ ᴊᴏɪɴɪɴɢ ᴄʜᴀᴛ.")
+@app.on_message(filters.channel)
+async def auto_react_to_channel_post(client, message: Message):
+    try:
+        await retry_with_backoff(
+            client.send_reaction,
+            chat_id=message.chat.id,
+            message_id=message.id,
+            emoji='👍'
+        )
+        
+        assistant = await get_assistant(message.chat.id)
+        if assistant:
+            await retry_with_backoff(
+                assistant.send_reaction,
+                chat_id=message.chat.id,
+                message_id=message.id,
+                emoji='❤️'
+            )
+        
+        await send_log(f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}")
+    except Exception as e:
+        await send_log(f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}")
