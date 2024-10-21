@@ -48,7 +48,7 @@ async def auto_react_to_channel_post(client, message: Message):
             client.send_reaction,
             chat_id=message.chat.id,
             message_id=message.id,
-            emoji='❤️'
+            emoji='👍'
         )
         
         assistant = await get_assistant(message.chat.id)
