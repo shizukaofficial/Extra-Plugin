@@ -3,7 +3,6 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait, ChannelInvalid
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
-from plugins.invitelink import link_command_handler  # Import the function
 import asyncio
 import random
 import os
