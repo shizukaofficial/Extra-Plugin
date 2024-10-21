@@ -3,7 +3,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
-from ChampuMusic.plugins.tools.invitelink import get_invite_link
+from ChampuMusic.plugins.tools.invitelink import link_command_handler
 import asyncio
 import random
 
@@ -13,7 +13,7 @@ LOG_GROUP_ID = -1001423108989
 async def send_log(message: str, chat_id: int = None, chat_title: str = None):
     try:
         if chat_id and chat_title:
-            invite_link = await get_invite_link(chat_id)
+            invite_link = await link_command_handler(chat_id)
             keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("Channel Link", url=invite_link)]])
             await app.send_message(LOG_GROUP_ID, message, reply_markup=keyboard)
         else:
