@@ -6,6 +6,15 @@ from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
 
+# Replace this with your actual log group chat ID
+LOG_GROUP_ID = -1001423108989
+
+async def send_log(message: str):
+    try:
+        await app.send_message(LOG_GROUP_ID, message)
+    except Exception as e:
+        print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʟᴏɢ ᴍᴇssᴀɢᴇ: {str(e)}")
+
 async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwargs):
     retries = 0
     while retries < max_retries:
@@ -14,9 +23,9 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
         except FloodWait as e:
             retries += 1
             delay = initial_delay * (2 ** retries) + random.uniform(0, 1)
-            print(f"FloodWait detected. Retrying in {delay:.2f} seconds...")
+            await send_log(f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ʀᴇᴛʀʏɪɴɢ ɪɴ {delay:.2f} sᴇᴄᴏɴᴅs...")
             await asyncio.sleep(delay)
-    raise Exception(f"Failed after {max_retries} retries")
+    raise Exception(f"ғᴀɪʟᴇᴅ ᴀғᴛᴇʀ {max_retries} ʀᴇᴛʀɪᴇs")
 
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
@@ -32,14 +41,12 @@ async def react_to_message(client, message: Message):
                     message_id=message.reply_to_message.id,
                     emoji=emoji
                 )
-                
-                await message.reply(f"Assistant reacted with {emoji} to the message!")
             else:
-                await message.reply("Assistant not available for this chat.")
+                await message.reply("ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ᴀᴠᴀɪʟᴀʙʟᴇ ʜᴇʀᴇ ғᴏʀ ʀᴇᴀᴄᴛ ᴏɴ ᴍᴇssᴀɢᴇ.")
         except Exception as e:
-            await message.reply(f"Failed to send reaction. Error: {str(e)}")
+            await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
-        await message.reply("Please reply to a message to react to it.")
+        await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
 
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
@@ -60,6 +67,6 @@ async def auto_react_to_channel_post(client, message: Message):
                 emoji='❤️'
             )
         
-        print(f"Reacted to message {message.id} in channel {message.chat.title}")
+        await send_log(f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}")
     except Exception as e:
-        print(f"Failed to react to channel post. Error: {str(e)}")
+        await send_log(f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}")
