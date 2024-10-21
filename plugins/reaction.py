@@ -3,6 +3,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait, ChannelInvalid
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
+from ChampuMusic.plugins.link_command_handler import link_command_handler  # Import the function
 import asyncio
 import random
 
@@ -12,8 +13,9 @@ LOG_GROUP_ID = -1001423108989
 async def send_log(message: str, channel_id: int = None, message_id: int = None):
     try:
         if channel_id and message_id:
+            link = await link_command_handler(channel_id, message_id)  # Use the imported function
             button = InlineKeyboardMarkup([
-                [InlineKeyboardButton("ɢᴏ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ", url=f"https://t.me/c/{str(channel_id)[4:]}/{message_id}")]
+                [InlineKeyboardButton("ɢᴏ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ", url=link)]
             ])
             await app.send_message(LOG_GROUP_ID, message, reply_markup=button)
         else:
@@ -53,19 +55,19 @@ async def react_to_message(client, message: Message):
             await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
     else:
         await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
-
-
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
         # Check if the bot is a member of the channel
         try:
             chat = await client.get_chat(message.chat.id)
+            await send_log(f"ᴄʜᴀᴛ ɪɴғᴏ: ɪᴅ={chat.id}, ᴛʏᴘᴇ={chat.type}, ᴛɪᴛʟᴇ={chat.title}")
+            
             if chat.type not in ["channel", "supergroup"]:
-                await send_log(f"ɴᴏᴛ ᴀ ᴄʜᴀɴɴᴇʟ ᴏʀ sᴜᴘᴇʀɢʀᴏᴜᴘ: {message.chat.id}")
+                await send_log(f"ɴᴏᴛ ᴀ ᴄʜᴀɴɴᴇʟ: {message.chat.id}")
                 return
         except ChannelInvalid:
-            await send_log(f"ʙᴏᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏғ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ: {message.chat.id}")
+            await send_log(f" ʙᴏᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏғ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ: {message.chat.id}")
             return
 
         await retry_with_backoff(
@@ -91,7 +93,7 @@ async def auto_react_to_channel_post(client, message: Message):
         )
     except Exception as e:
         await send_log(
-            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ  ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
+            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
             channel_id=message.chat.id,
             message_id=message.id
         )
