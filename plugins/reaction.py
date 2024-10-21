@@ -9,9 +9,9 @@ import random
 # Replace this with your actual log group chat ID
 LOG_GROUP_ID = -1001423108989
 
-async def send_log(message: str, channel_id: int = None, message_id: int = None):
+async def send_log(message: str, channel_id: int = None, message_id: int = None, is_private: bool = False):
     try:
-        if channel_id and message_id:
+        if channel_id and message_id and not is_private:
             button = InlineKeyboardMarkup([
                 [InlineKeyboardButton("ɢᴏ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ", url=f"https://t.me/c/{str(channel_id)[4:]}/{message_id}")]
             ])
@@ -64,6 +64,7 @@ async def auto_react_to_channel_post(client, message: Message):
             if chat.type not in ["channel", "supergroup"]:
                 await send_log(f"ɴᴏᴛ ᴀ ᴄʜᴀɴɴᴇʟ ᴏʀ sᴜᴘᴇʀɢʀᴏᴜᴘ: {message.chat.id}")
                 return
+            is_private = chat.username is None
         except ChannelInvalid:
             await send_log(f"ʙᴏᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏғ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ: {message.chat.id}")
             return
@@ -87,11 +88,13 @@ async def auto_react_to_channel_post(client, message: Message):
         await send_log(
             f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}",
             channel_id=message.chat.id,
-            message_id=message.id
+            message_id=message.id,
+            is_private=is_private
         )
     except Exception as e:
         await send_log(
             f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ  ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
             channel_id=message.chat.id,
-            message_id=message.id
+            message_id=message.id,
+            is_private=is_private
         )
