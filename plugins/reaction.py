@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
@@ -9,9 +9,15 @@ import random
 # Replace this with your actual log group chat ID
 LOG_GROUP_ID = -1001423108989
 
-async def send_log(message: str):
+async def send_log(message: str, channel_id: int = None, message_id: int = None):
     try:
-        await app.send_message(LOG_GROUP_ID, message)
+        if channel_id and message_id:
+            button = InlineKeyboardMarkup([
+                [InlineKeyboardButton("ɢᴏ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ", url=f"https://t.me/c/{str(channel_id)[4:]}/{message_id}")]
+            ])
+            await app.send_message(LOG_GROUP_ID, message, reply_markup=button)
+        else:
+            await app.send_message(LOG_GROUP_ID, message)
     except Exception as e:
         print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʟᴏɢ ᴍᴇssᴀɢᴇ: {str(e)}")
 
@@ -67,6 +73,14 @@ async def auto_react_to_channel_post(client, message: Message):
                 emoji='❤️'
             )
         
-        await send_log(f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}")
+        await send_log(
+            f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ {message.id} ɪɴ ᴄʜᴀɴɴᴇʟ {message.chat.title}",
+            channel_id=message.chat.id,
+            message_id=message.id
+        )
     except Exception as e:
-        await send_log(f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}")
+        await send_log(
+            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ  ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
+            channel_id=message.chat.id,
+            message_id=message.id
+        )
