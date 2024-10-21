@@ -1,6 +1,6 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from pyrogram.errors import FloodWait
+from pyrogram.errors import FloodWait, ChannelInvalid
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
 import asyncio
@@ -54,9 +54,20 @@ async def react_to_message(client, message: Message):
     else:
         await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
 
+
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
+        # Check if the bot is a member of the channel
+        try:
+            chat = await client.get_chat(message.chat.id)
+            if chat.type not in ["channel", "supergroup"]:
+                await send_log(f"ɴᴏᴛ ᴀ ᴄʜᴀɴɴᴇʟ ᴏʀ sᴜᴘᴇʀɢʀᴏᴜᴘ: {message.chat.id}")
+                return
+        except ChannelInvalid:
+            await send_log(f"ʙᴏᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏғ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ: {message.chat.id}")
+            return
+
         await retry_with_backoff(
             client.send_reaction,
             chat_id=message.chat.id,
