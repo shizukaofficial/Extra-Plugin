@@ -7,9 +7,6 @@ from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
 
-# Replace this with your actual log group chat ID
-LOGGER_ID = -1001423108989
-
 async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
         channel_button = InlineKeyboardMarkup([
