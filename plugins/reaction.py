@@ -7,14 +7,13 @@ from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
 
-# Example static list of possible reactions (this should ideally be dynamic)
 DEFAULT_REACTION_LIST = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉']
 
 async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
-        channel_button = InlineKeyboardMarkup([
-            [InlineKeyboardButton(text="Go to Message", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")]
-        ])
+        channel_button = InlineKeyboardMarkup([[
+            InlineKeyboardButton(text="Go to Message", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")
+        ]])
         await app.send_message(
             LOGGER_ID,
             f"{message}\n\nChannel: {chat_title}\nChannel ID: `{chat_id}`\nMessage ID: `{message_id}`",
@@ -24,9 +23,6 @@ async def send_log(message: str, chat_id: int, chat_title: str, message_id: int)
         print(f"Failed to send log: {e}")
 
 async def get_channel_reactions(chat_id):
-    # This function should return the allowed reactions for the given channel
-    # For now, we'll just return the default list, but in a real scenario,
-    # you would implement logic to fetch the actual allowed reactions.
     return DEFAULT_REACTION_LIST
 
 async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwargs):
@@ -44,7 +40,22 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
                 kwargs.get('message_id', 'Unknown')
             )
             await asyncio.sleep(delay)
+        except Exception as e:
+            # Log the error and return None to indicate failure
+            print(f"Error in retry_with_backoff: {str(e)}")
+            return None
     raise Exception(f"Failed after {max_retries} retries")
+
+async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_retries=3):
+    for _ in range(max_retries):
+        try:
+            await client.send_reaction(chat_id=chat_id, message_id=message_id, emoji=emoji)
+            return  # Success, exit the function
+        except Exception as e:
+            print(f"Failed to send reaction {emoji}: {str(e)}")
+            # Select a new random emoji
+            emoji = random.choice(DEFAULT_REACTION_LIST)
+    raise Exception(f"Failed to send reaction after {max_retries} attempts")
 
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
@@ -60,25 +71,27 @@ async def react_to_message(client, message: Message):
                     message.id
                 )
                 return
+            
             assistant = await get_assistant(message.chat.id)
             if assistant:
                 bot_group_react = random.choice(allowed_reactions)
-                # React with the assistant's emoji
-                await retry_with_backoff(
-                    assistant.send_reaction,
-                    chat_id=message.chat.id,
-                    message_id=message.reply_to_message.id,
-                    emoji=bot_group_react
+                print(f"Selected reaction for assistant: {bot_group_react}")
+                await send_reaction_with_fallback(
+                    assistant,
+                    message.chat.id,
+                    message.reply_to_message.id,
+                    bot_group_react
                 )
             else:
                 await message.reply("Assistant not available here for react on message.")
+                
             assistant_group_react = random.choice(allowed_reactions)
-            # React with the bot's emoji
-            await retry_with_backoff(
-                client.send_reaction,
-                chat_id=message.chat.id,
-                message_id=message.reply_to_message.id,
-                emoji=assistant_group_react
+            print(f"Selected reaction for client: {assistant_group_react}")
+            await send_reaction_with_fallback(
+                client,
+                message.chat.id,
+                message.reply_to_message.id,
+                assistant_group_react
             )
         
         except Exception as e:
@@ -89,7 +102,6 @@ async def react_to_message(client, message: Message):
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
-        # Get the allowed reactions for the channel
         allowed_reactions = await get_channel_reactions(message.chat.id)
         
         if not allowed_reactions:
@@ -101,36 +113,18 @@ async def auto_react_to_channel_post(client, message: Message):
             )
             return
         
-        # Randomly select a reaction from the allowed reactions
-        selected_reaction = random.choice(allowed_reactions)
-        
-        await retry_with_backoff(
-            client.send_reaction,
-            chat_id=message.chat.id,
-            message_id=message.id,
-            emoji=selected_reaction
-        )
-        
-        assistant = await get_assistant(message.chat.id)
-        if assistant:
-            # Randomly select a reaction for the assistant as well
-            assistant_reaction = random.choice(allowed_reactions)
-            await retry_with_backoff(
-                assistant.send_reaction,
-                chat_id=message.chat.id,
-                message_id=message.id,
-                emoji=assistant_reaction
-            )
-        
-        await send_log(
-            f"Reacted to message with {selected_reaction}",
+        selected_react = random.choice(allowed_reactions)
+        print(f"Selected reaction for channel post: {selected_react}")
+        await send_reaction_with_fallback(
+            client,
             message.chat.id,
-            message.chat.title,
-            message.id
+            message.id,
+            selected_react
         )
+        
     except Exception as e:
         await send_log(
-            f"Failed to react to channel post. Error: {str(e)}",
+            f"Failed to send reaction to channel post. Error: {str(e)}",
             message.chat.id,
             message.chat.title,
             message.id
