@@ -96,6 +96,12 @@ async def react_to_message(client, message: Message):
         
         except Exception as e:
             await message.reply(f"Failed to send reaction. Error: {str(e)}")
+        
+        finally:
+            try:
+                await message.delete()  # Delete the command message
+            except Exception as e:
+                print(f"Failed to delete message: {str(e)}")
     else:
         await message.reply("Please reply to a message to react to it.")
 
