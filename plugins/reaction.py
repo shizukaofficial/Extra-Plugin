@@ -99,9 +99,11 @@ async def react_to_message(client, message: Message):
     else:
         await message.reply("Please reply to a message to react to it.")
 
+
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
+        # Get the allowed reactions for the channel
         allowed_reactions = await get_channel_reactions(message.chat.id)
         
         if not allowed_reactions:
@@ -113,18 +115,36 @@ async def auto_react_to_channel_post(client, message: Message):
             )
             return
         
-        selected_react = random.choice(allowed_reactions)
-        print(f"Selected reaction for channel post: {selected_react}")
-        await send_reaction_with_fallback(
-            client,
-            message.chat.id,
-            message.id,
-            selected_react
+        # Randomly select a reaction from the allowed reactions
+        selected_reaction = random.choice(allowed_reactions)
+        
+        await retry_with_backoff(
+            client.send_reaction,
+            chat_id=message.chat.id,
+            message_id=message.id,
+            emoji=selected_reaction
         )
         
+        assistant = await get_assistant(message.chat.id)
+        if assistant:
+            # Randomly select a reaction for the assistant as well
+            assistant_reaction = random.choice(allowed_reactions)
+            await retry_with_backoff(
+                assistant.send_reaction,
+                chat_id=message.chat.id,
+                message_id=message.id,
+                emoji=assistant_reaction
+            )
+        
+        await send_log(
+            f"Reacted to message with {selected_reaction}",
+            message.chat.id,
+            message.chat.title,
+            message.id
+        )
     except Exception as e:
         await send_log(
-            f"Failed to send reaction to channel post. Error: {str(e)}",
+            f"Failed to react to channel post. Error: {str(e)}",
             message.chat.id,
             message.chat.title,
             message.id
