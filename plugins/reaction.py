@@ -105,11 +105,9 @@ async def react_to_message(client, message: Message):
     else:
         await message.reply("Please reply to a message to react to it.")
 
-
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
-        # Get the allowed reactions for the channel
         allowed_reactions = await get_channel_reactions(message.chat.id)
         
         if not allowed_reactions:
@@ -121,29 +119,37 @@ async def auto_react_to_channel_post(client, message: Message):
             )
             return
         
-        # Randomly select a reaction from the allowed reactions
-        selected_reaction = random.choice(allowed_reactions)
-        
-        await retry_with_backoff(
-            client.send_reaction,
-            chat_id=message.chat.id,
-            message_id=message.id,
-            emoji=selected_reaction
-        )
-        
+        selected_react = random.choice(allowed_reactions)
+        print(f"Selected reaction for channel post: {selected_react}")
+
+        # Attempt to react with the bot first
+        try:
+            await send_reaction_with_fallback(
+                client,
+                message.chat.id,
+                message.id,
+                selected_react
+            )
+        except Exception as e:
+            print(f"Client failed to react to channel post: {str(e)}")
+
+        # Then, attempt to react with the assistant if available
         assistant = await get_assistant(message.chat.id)
         if assistant:
-            # Randomly select a reaction for the assistant as well
             assistant_reaction = random.choice(allowed_reactions)
-            await retry_with_backoff(
-                assistant.send_reaction,
-                chat_id=message.chat.id,
-                message_id=message.id,
-                emoji=assistant_reaction
-            )
+            print(f"Selected reaction for assistant: {assistant_reaction}")
+            try:
+                await send_reaction_with_fallback(
+                    assistant,
+                    message.chat.id,
+                    message.id,
+                    assistant_reaction
+                )
+            except Exception as e:
+                print(f"Assistant failed to react to channel post: {str(e)}")
         
         await send_log(
-            f"Reacted to message with {selected_reaction}",
+            f"Reacted to message with {selected_react}",
             message.chat.id,
             message.chat.title,
             message.id
