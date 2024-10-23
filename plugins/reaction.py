@@ -57,6 +57,27 @@ async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_re
             emoji = random.choice(DEFAULT_REACTION_LIST)
     raise Exception(f"Failed to send reaction after {max_retries} attempts")
 
+async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_retries=3):
+    if emoji not in DEFAULT_REACTION_LIST:
+        print(f"Invalid emoji attempted: {emoji}")
+        return  # Skip sending if emoji is invalid
+
+    for attempt in range(max_retries):
+        try:
+            await client.send_reaction(chat_id=chat_id, message_id=message_id, emoji=emoji)
+            print(f"Successfully sent reaction: {emoji}")  # Log only on success
+            return  # Success, exit the function
+        except FloodWait as e:
+            wait_time = e.x  # Get the wait time from the FloodWait exception
+            print(f"FloodWait detected. Waiting for {wait_time} seconds before retrying...")
+            await asyncio.sleep(wait_time)  # Wait for the specified time
+        except Exception as e:
+            print(f"Failed to send reaction {emoji}: {str(e)}")
+            # Select a new random emoji
+            emoji = random.choice(DEFAULT_REACTION_LIST)
+    
+    raise Exception(f"Failed to send reaction after {max_retries} attempts")
+
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
     if message.reply_to_message:
@@ -73,26 +94,32 @@ async def react_to_message(client, message: Message):
                 return
             
             assistant = await get_assistant(message.chat.id)
+            # Attempt to send reaction with the assistant if available
             if assistant:
                 bot_group_react = random.choice(allowed_reactions)
                 print(f"Selected reaction for assistant: {bot_group_react}")
-                await send_reaction_with_fallback(
-                    assistant,
-                    message.chat.id,
-                    message.reply_to_message.id,
-                    bot_group_react
-                )
-            else:
-                await message.reply("Assistant not available here for react on message.")
-                
+                try:
+                    await send_reaction_with_fallback(
+                        assistant,
+                        message.chat.id,
+                        message.reply_to_message.id,
+                        bot_group_react
+                    )
+                except Exception as e:
+                    print(f"Assistant failed to react: {str(e)}")
+            
+            # Attempt to send reaction with the client (bot)
             assistant_group_react = random.choice(allowed_reactions)
             print(f"Selected reaction for client: {assistant_group_react}")
-            await send_reaction_with_fallback(
-                client,
-                message.chat.id,
-                message.reply_to_message.id,
-                assistant_group_react
-            )
+            try:
+                await send_reaction_with_fallback(
+                    client,
+                    message.chat.id,
+                    message.reply_to_message.id,
+                    assistant_group_react
+                )
+            except Exception as e:
+                print(f"Client failed to react: {str(e)}")
         
         except Exception as e:
             await message.reply(f"Failed to send reaction. Error: {str(e)}")
@@ -102,8 +129,6 @@ async def react_to_message(client, message: Message):
                 await message.delete()  # Delete the command message
             except Exception as e:
                 print(f"Failed to delete message: {str(e)}")
-    else:
-        await message.reply("Please reply to a message to react to it.")
 
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
