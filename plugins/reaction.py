@@ -97,7 +97,6 @@ async def react_to_message(client, message: Message):
             # Attempt to send reaction with the assistant if available
             if assistant:
                 bot_group_react = random.choice(allowed_reactions)
-                print(f"Selected reaction for assistant: {bot_group_react}")
                 try:
                     await send_reaction_with_fallback(
                         assistant,
@@ -110,7 +109,6 @@ async def react_to_message(client, message: Message):
             
             # Attempt to send reaction with the client (bot)
             assistant_group_react = random.choice(allowed_reactions)
-            print(f"Selected reaction for client: {assistant_group_react}")
             try:
                 await send_reaction_with_fallback(
                     client,
