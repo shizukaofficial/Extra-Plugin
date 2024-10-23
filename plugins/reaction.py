@@ -50,26 +50,35 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
 async def react_to_message(client, message: Message):
     if message.reply_to_message:
         try:
-            emoji = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else '👍'
-            
+            allowed_reactions = await get_channel_reactions(message.chat.id)
+        
+            if not allowed_reactions:
+                await message.chat.send_message(
+                    f"No reactions available for in this group.",
+                    message.chat.id,
+                    message.chat.title,
+                    message.id
+                )
+                return
             assistant = await get_assistant(message.chat.id)
             if assistant:
+                bot_group_react = random.choice(allowed_reactions)
                 # React with the assistant's emoji
                 await retry_with_backoff(
                     assistant.send_reaction,
                     chat_id=message.chat.id,
                     message_id=message.reply_to_message.id,
-                    emoji=emoji
+                    emoji=bot_group_react
                 )
             else:
                 await message.reply("Assistant not available here for react on message.")
-            
+            assistant_group_react = random.choice(allowed_reactions)
             # React with the bot's emoji
             await retry_with_backoff(
                 client.send_reaction,
                 chat_id=message.chat.id,
                 message_id=message.reply_to_message.id,
-                emoji=emoji
+                emoji=assistant_group_react
             )
         
         except Exception as e:
