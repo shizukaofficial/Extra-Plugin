@@ -7,6 +7,9 @@ from ChampuMusic.utils.database import get_assistant
 import asyncio
 import random
 
+# Example static list of possible reactions (this should ideally be dynamic)
+DEFAULT_REACTION_LIST = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉']
+
 async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
         channel_button = InlineKeyboardMarkup([
@@ -20,6 +23,12 @@ async def send_log(message: str, chat_id: int, chat_title: str, message_id: int)
     except Exception as e:
         print(f"Failed to send log: {e}")
 
+async def get_channel_reactions(chat_id):
+    # This function should return the allowed reactions for the given channel
+    # For now, we'll just return the default list, but in a real scenario,
+    # you would implement logic to fetch the actual allowed reactions.
+    return DEFAULT_REACTION_LIST
+
 async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwargs):
     retries = 0
     while retries < max_retries:
@@ -29,13 +38,13 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
             retries += 1
             delay = initial_delay * (2 ** retries) + random.uniform(0, 1)
             await send_log(
-                f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ʀᴇᴛʀʏɪɴɢ ɪɴ {delay:.2f} sᴇᴄᴏɴᴅs...",
+                f"FloodWait detected. Retrying in {delay:.2f} seconds...",
                 kwargs.get('chat_id', 'Unknown'),
                 kwargs.get('chat_title', 'Unknown'),
                 kwargs.get('message_id', 'Unknown')
             )
             await asyncio.sleep(delay)
-    raise Exception(f"ғᴀɪʟᴇᴅ ᴀғᴛᴇʀ {max_retries} ʀᴇᴛʀɪᴇs")
+    raise Exception(f"Failed after {max_retries} retries")
 
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
@@ -45,6 +54,7 @@ async def react_to_message(client, message: Message):
             
             assistant = await get_assistant(message.chat.id)
             if assistant:
+                # React with the assistant's emoji
                 await retry_with_backoff(
                     assistant.send_reaction,
                     chat_id=message.chat.id,
@@ -52,40 +62,66 @@ async def react_to_message(client, message: Message):
                     emoji=emoji
                 )
             else:
-                await message.reply("ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ᴀᴠᴀɪʟᴀʙʟᴇ ʜᴇʀᴇ ғᴏʀ ʀᴇᴀᴄᴛ ᴏɴ ᴍᴇssᴀɢᴇ.")
+                await message.reply("Assistant not available here for react on message.")
+            
+            # React with the bot's emoji
+            await retry_with_backoff(
+                client.send_reaction,
+                chat_id=message.chat.id,
+                message_id=message.reply_to_message.id,
+                emoji=emoji
+            )
+        
         except Exception as e:
-            await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
+            await message.reply(f"Failed to send reaction. Error: {str(e)}")
     else:
-        await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
+        await message.reply("Please reply to a message to react to it.")
 
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
     try:
+        # Get the allowed reactions for the channel
+        allowed_reactions = await get_channel_reactions(message.chat.id)
+        
+        if not allowed_reactions:
+            await send_log(
+                f"No reactions available for this channel.",
+                message.chat.id,
+                message.chat.title,
+                message.id
+            )
+            return
+        
+        # Randomly select a reaction from the allowed reactions
+        selected_reaction = random.choice(allowed_reactions)
+        
         await retry_with_backoff(
             client.send_reaction,
             chat_id=message.chat.id,
             message_id=message.id,
-            emoji='👍'
+            emoji=selected_reaction
         )
         
         assistant = await get_assistant(message.chat.id)
         if assistant:
+            # Randomly select a reaction for the assistant as well
+            assistant_reaction = random.choice(allowed_reactions)
             await retry_with_backoff(
                 assistant.send_reaction,
                 chat_id=message.chat.id,
                 message_id=message.id,
-                emoji='❤️'
+                emoji=assistant_reaction
             )
         
         await send_log(
-            f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ",
+            f"Reacted to message with {selected_reaction}",
             message.chat.id,
             message.chat.title,
             message.id
         )
     except Exception as e:
         await send_log(
-            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
+            f"Failed to react to channel post. Error: {str(e)}",
             message.chat.id,
             message.chat.title,
             message.id
