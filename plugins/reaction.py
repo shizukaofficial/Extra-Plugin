@@ -56,7 +56,6 @@ async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_re
             # Select a new random emoji
             emoji = random.choice(DEFAULT_REACTION_LIST)
     raise Exception(f"Failed to send reaction after {max_retries} attempts")
-
 async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_retries=3):
     if emoji not in DEFAULT_REACTION_LIST:
         print(f"Invalid emoji attempted: {emoji}")
@@ -64,6 +63,7 @@ async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_re
 
     for attempt in range(max_retries):
         try:
+            print(f"Attempting to send reaction: {emoji} to message ID: {message_id} in chat ID: {chat_id}")
             await client.send_reaction(chat_id=chat_id, message_id=message_id, emoji=emoji)
             print(f"Successfully sent reaction: {emoji}")  # Log only on success
             return  # Success, exit the function
@@ -129,6 +129,8 @@ async def react_to_message(client, message: Message):
                 await message.delete()  # Delete the command message
             except Exception as e:
                 print(f"Failed to delete message: {str(e)}")
+    else:
+        await message.reply("Please reply to a message to react to it.")
 
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
