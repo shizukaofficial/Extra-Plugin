@@ -151,7 +151,7 @@ async def get_document_from_file_id(
     )
 
 
-@app.on_message(filters.command("stickerid", "stid"))
+@app.on_message(filters.command("stickerid"))
 @capture_err
 async def sticker_id(_, message: Message):
     reply = message.reply_to_message
