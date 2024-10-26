@@ -69,7 +69,8 @@ async def on_user_join(client: Client, chat_member_updated):
         try:
             # Check if the user is a member of the channel
             user_member = await app.get_chat_member(channel_id, user_id)
-            return  # User is a member, no action needed
+            # If the user is a member of the channel, do nothing
+            return
         except UserNotParticipant:
             # User is not a member of the channel, mute them
             await client.restrict_chat_member(
@@ -86,11 +87,11 @@ async def on_user_join(client: Client, chat_member_updated):
             # Handle any other exceptions if necessary
             print(f"Error checking channel membership: {e}")
     else:
-        # If the user is no longer a member, you may want to unmute them if they join the channel later
+        # If the user is no longer a member, check if they can be unmuted
         try:
             user_member = await app.get_chat_member(channel_id, user_id)
             # If the user is now a member of the channel, unmute them
-            if user_member:
+            if user_member.status == "member":
                 await client.restrict_chat_member(
                     chat_id,
                     user_id,
