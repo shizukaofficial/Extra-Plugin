@@ -35,31 +35,7 @@ async def set_forcesub(client: Client, message: Message):
     try:
         channel_info = await client.get_chat(channel_input)
         channel_id = channel_info.id
-        channel_title = channel_info.title
-        channel_link = await app.export_chat_invite_link(channel_id)
-        channel_username = f"{channel_info.username}" if channel_info.username else channel_link
-        channel_members_count = channel_info.members_count
-
-        bot_id = (await client.get_me()).id
-        bot_is_admin = False
-
-        async for admin in app.get_chat_members(channel_id, filter=ChatMembersFilter.ADMINISTRATORS):
-            if admin.user.id == bot_id:
-                bot_is_admin = True
-                break
-
-        if not bot_is_admin:
-            await asyncio.sleep(1)
-            return await message.reply_photo(
-                photo="https://envs.sh/TnZ.jpg",
-                caption=("**🚫 I'ᴍ ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪs ᴄʜᴀɴɴᴇʟ.**\n\n"
-                         "**➲ ᴘʟᴇᴀsᴇ ᴍᴀᴋᴇ ᴍᴇ ᴀɴ ᴀᴅᴍɪɴ ᴡɪᴛʜ:**\n\n"
-                         "**➥ Iɴᴠɪᴛᴇ Nᴇᴡ Mᴇᴍʙᴇʀs**\n\n"
-                         "🛠️ **Tʜᴇɴ ᴜsᴇ /ғsᴜʙ <ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ> ᴛᴏ sᴇᴛ ғᴏʀᴄᴇ sᴜʙsᴄʀɪᴘᴛɪᴏɴ.**"),
-                reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("๏ ᴀᴅᴅ ᴍᴇ ɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=f"https://t.me/{app.username}?startchannel=s&admin=invite_users+manage_video_chats")]]
-                )
-            )
+        channel_username = f"{channel_info.username}" if channel_info.username else None
 
         forcesub_collection.update_one(
             {"chat_id": chat_id},
@@ -67,7 +43,7 @@ async def set_forcesub(client: Client, message: Message):
             upsert=True
         )
 
-        await message.reply_text(f"**🎉 Force subscription set to channel:** [{channel_title}](https://t.me/{channel_username})")
+        await message.reply_text(f"**🎉 Force subscription set to channel:** [{channel_info.title}](https://t.me/{channel_username})")
 
     except Exception as e:
         await message.reply_text("**🚫 Failed to set force subscription.**")
