@@ -47,6 +47,7 @@ async def set_forcesub(client: Client, message: Message):
 
     except Exception as e:
         await message.reply_text("**🚫 Failed to set force subscription.**")
+        
 @app.on_chat_member_updated()
 async def on_user_join(client: Client, chat_member_updated):
     chat_id = chat_member_updated.chat.id
@@ -59,7 +60,6 @@ async def on_user_join(client: Client, chat_member_updated):
     channel_id = forcesub_data["channel_id"]
     channel_username = forcesub_data["channel_username"]
 
-    # Ensure new_chat_member is not None
     new_chat_member = chat_member_updated.new_chat_member
     if new_chat_member is None:
         return  # Exit if new_chat_member is None
@@ -82,6 +82,19 @@ async def on_user_join(client: Client, chat_member_updated):
                 f"**🚫 {chat_member_updated.from_user.mention}, you have been muted because you need to join the [channel](https://t.me/{channel_username}) to send messages in this group.**",
                 disable_web_page_preview=True
             )
+    else:
+        # User is now a member of the channel, unmute them if they were muted
+        await client.restrict_chat_member(
+            chat_id,
+            user_id,
+            permissions=ChatPermissions(can_send_messages=True)
+        )
+        await client.send_message(
+            chat_id,
+            f"**🎉 {chat_member_updated.from_user.mention}, you have been unmuted because you joined the [channel](https://t.me/{channel_username}).**",
+            disable_web_page_preview=True
+        )
+            
 @app.on_callback_query(filters.regex("close_force_sub"))
 async def close_force_sub(client: Client, callback_query: CallbackQuery):
     await callback_query.answer("ᴄʟᴏsᴇᴅ!")
