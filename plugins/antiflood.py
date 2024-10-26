@@ -145,6 +145,10 @@ flood_count = {}
 
 @app.on_message(filters.group, group=31)
 async def flood_detector(client, message: Message):
+    # Check if the message has a from_user attribute
+    if message.from_user is None:
+        return  # Exit if the message does not come from a user
+    
     chat_id = message.chat.id
     user_id = message.from_user.id
     
