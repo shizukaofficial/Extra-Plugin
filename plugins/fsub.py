@@ -82,18 +82,31 @@ async def on_user_join(client: Client, chat_member_updated):
                 f"**🚫 {chat_member_updated.from_user.mention}, you have been muted because you need to join the [channel](https://t.me/{channel_username}) to send messages in this group.**",
                 disable_web_page_preview=True
             )
-        except:
-              # User is now a member of the channel, unmute them if they were muted
-            await client.restrict_chat_member(
-                chat_id,
-                user_id,
-                permissions=ChatPermissions(can_send_messages=True)
-            )
-            await client.send_message(
-                chat_id,
-                f"**🎉 {chat_member_updated.from_user.mention}, you have been unmuted because you joined the [channel](https://t.me/{channel_username}).**",
-                disable_web_page_preview=True
-            )
+        except Exception as e:
+            # Handle any other exceptions if necessary
+            print(f"Error checking channel membership: {e}")
+    else:
+        # If the user is no longer a member, you may want to unmute them if they join the channel later
+        try:
+            user_member = await app.get_chat_member(channel_id, user_id)
+            # If the user is now a member of the channel, unmute them
+            if user_member:
+                await client.restrict_chat_member(
+                    chat_id,
+                    user_id,
+                    permissions=ChatPermissions(can_send_messages=True)
+                )
+                await client.send_message(
+                    chat_id,
+                    f"**🎉 {chat_member_updated.from_user.mention}, you have been unmuted because you joined the [channel](https://t.me/{channel_username}).**",
+                    disable_web_page_preview=True
+                )
+        except UserNotParticipant:
+            # User is still not a member of the channel, do nothing
+            pass
+        except Exception as e:
+            # Handle any other exceptions if necessary
+            print(f"Error checking channel membership on unmute: {e}")
             
 @app.on_callback_query(filters.regex("close_force_sub"))
 async def close_force_sub(client: Client, callback_query: CallbackQuery):
