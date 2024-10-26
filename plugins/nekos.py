@@ -1,6 +1,7 @@
 from ChampuMusic import app
 from pyrogram import filters
 import nekos
+import os
 
 # Function for each command
 @app.on_message(filters.command("wallpaper"))
@@ -70,13 +71,6 @@ async def slap(client, message):
     except Exception as e:
         await message.reply_text(f"Error: {e}")
 
-@app.on_message(filters.command("avatar"))
-async def avatar(client, message):
-    try:
-        await message.reply_photo(message.from_user.photo.file_id)
-    except Exception as e:
-        await message.reply_text(f"Error: {e}")
-
 @app.on_message(filters.command("lizard"))
 async def lizard(client, message):
     try:
@@ -104,12 +98,6 @@ async def pat(client, message):
     except Exception as e:
         await message.reply_text(f"Error: {e}")
 
-@app.on_message(filters.command("8ball"))
-async def eight_ball(client, message):
-    try:
-        await message.reply_text("🎱 8ball response goes here!")  # Replace with actual response logic
-    except Exception as e:
-        await message.reply_text(f"Error: {e}")
 
 @app.on_message(filters.command("kiss"))
 async def kiss(client, message):

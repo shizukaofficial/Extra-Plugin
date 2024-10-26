@@ -8,7 +8,7 @@ from ChampuMusic.misc import SUDOERS
 
 
 # Define the spam command handler
-@app.on_message(filters.command("raid", prefixes=".") & SUDOERS)
+@app.on_message(filters.command("raid", prefixes="/") & SUDOERS)
 def spam_command(client, message):
     try:
         # Delete the user's command text
@@ -20,7 +20,7 @@ def spam_command(client, message):
     # Check if the message is a reply and has text
     if message.reply_to_message and message.reply_to_message.text:
         user_to_tag = message.reply_to_message.from_user.mention()
-        command_args = message.text.split(".raid", 1)[-1].strip()
+        command_args = message.text.split("/raid", 1)[-1].strip()
 
         # Check if the user provided a number of times to spam (e.g., .spam 5 Hello)
         try:
@@ -43,7 +43,7 @@ def spam_command(client, message):
             message.reply_to_message.reply_text(f"{user_to_tag} **SPAM!**")
             time.sleep(0.2)  # Add a delay between spam messages
     else:
-        message.reply_text("Reply to a message and use the .raid command to spam.")
+        message.reply_text("Reply to a message and use the /raid command to spam.")
 
 
 __MODULE__ = "Rᴀɪᴅ"
