@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ChatPermissions
 from pymongo import MongoClient
 from ChampuMusic import app
 import asyncio
@@ -8,8 +8,6 @@ from config import MONGO_DB_URI
 from pyrogram.enums import ChatMembersFilter
 from pyrogram.errors import (
     ChatAdminRequired,
-    InviteRequestSent,
-    UserAlreadyParticipant,
     UserNotParticipant,
 )
 
@@ -62,7 +60,6 @@ async def set_forcesub(client: Client, message: Message):
                     [[InlineKeyboardButton("๏ ᴀᴅᴅ ᴍᴇ ɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=f"https://t.me/{app.username}?startchannel=s&admin=invite_users+manage_video_chats")]]
                 )
             )
-            
 
         forcesub_collection.update_one(
             {"chat_id": chat_id},
@@ -70,35 +67,42 @@ async def set_forcesub(client: Client, message: Message):
             upsert=True
         )
 
-        set_by_user = f"@{message.from_user.username}" if message.from_user.username else message.from_user.first_name
-
-        await message.reply_photo(
-            photo="https://envs.sh/Tn_.jpg",
-            caption=(
-                f"**🎉 ғᴏʀᴄᴇ sᴜʙsᴄʀɪᴘᴛɪᴏɴ sᴇᴛ ᴛᴏ** [{channel_title}]({channel_username}) **ғᴏʀ ᴛʜɪs ɢʀᴏᴜᴘ.**\n\n"
-                f"**🆔 ᴄʜᴀɴɴᴇʟ ɪᴅ:** `{channel_id}`\n"
-                f"**🖇️ ᴄʜᴀɴɴᴇʟ ʟɪɴᴋ:** [ɢᴇᴛ ʟɪɴᴋ]({channel_link})\n"
-                f"**📊 ᴍᴇᴍʙᴇʀ ᴄᴏᴜɴᴛ:** {channel_members_count}\n"
-                f"**👤 sᴇᴛ ʙʏ:** {set_by_user}"
-            ),
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("๏ ᴄʟᴏsᴇ ๏", callback_data="close_force_sub")]]
-            )
-        )
-        await asyncio.sleep(1)
+        await message.reply_text(f"**🎉 Force subscription set to channel:** [{channel_title}](https://t.me/{channel_username})")
 
     except Exception as e:
-        await message.reply_photo(
-            photo="https://envs.sh/TnZ.jpg",
-            caption=("**🚫 I'ᴍ ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪs ᴄʜᴀɴɴᴇʟ.**\n\n"
-                     "**➲ ᴘʟᴇᴀsᴇ ᴍᴀᴋᴇ ᴍᴇ ᴀɴ ᴀᴅᴍɪɴ ᴡɪᴛʜ:**\n\n"
-                     "**➥ Iɴᴠɪᴛᴇ Nᴇᴡ Mᴇᴍʙᴇʀs**\n\n"
-                     "🛠️ **Tʜᴇɴ ᴜsᴇ /ғsᴜʙ <ᴄʜᴀɴɴᴇʟ ᴜsᴇʀɴᴀᴍᴇ> ᴛᴏ sᴇᴛ ғᴏʀᴄᴇ sᴜʙsᴄʀɪᴘᴛɪᴏɴ.**"),
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("๏ ᴀᴅᴅ ᴍᴇ ɪɴ ᴄʜᴀɴɴᴇʟ ๏", url=f"https://t.me/{app.username}?startchannel=s&admin=invite_users+manage_video_chats")]]
+        await message.reply_text("**🚫 Failed to set force subscription.**")
+
+@app.on_chat_member_updated()
+async def on_user_join(client: Client, chat_member_updated):
+    chat_id = chat_member_updated.chat.id
+    user_id = chat_member_updated.from_user.id
+    forcesub_data = forcesub_collection.find_one({"chat_id": chat_id})
+
+    if not forcesub_data:
+        return  # No force subscription set for this group
+
+    channel_id = forcesub_data["channel_id"]
+    channel_username = forcesub_data["channel_username"]
+
+    # Check if the user joined the group
+    if chat_member_updated.new_chat_member.status == "member":
+        try:
+            # Check if the user is a member of the channel
+            user_member = await app.get_chat_member(channel_id, user_id)
+            return  # User is a member, no action needed
+        except UserNotParticipant:
+            # User is not a member of the channel, mute them
+            await client.restrict_chat_member(
+                chat_id,
+                user_id,
+                permissions=ChatPermissions(can_send_messages=False)
             )
-        )
-        await asyncio.sleep(1)
+            await client.send_message(
+                chat_id,
+                f "**🚫 {chat_member_updated.from_user.mention }, you have been muted because you need to join the [channel](https://t.me/{channel_username}) to send messages in this group.**",
+                disable_web_page_preview=True
+            )
+
 
 @app.on_callback_query(filters.regex("close_force_sub"))
 async def close_force_sub(client: Client, callback_query: CallbackQuery):
