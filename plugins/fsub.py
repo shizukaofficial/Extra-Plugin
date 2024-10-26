@@ -75,11 +75,9 @@ async def on_user_join(client: Client, chat_member_updated):
             )
             await client.send_message(
                 chat_id,
-                f "**🚫 {chat_member_updated.from_user.mention }, you have been muted because you need to join the [channel](https://t.me/{channel_username}) to send messages in this group.**",
+                f"**🚫 {chat_member_updated.from_user.mention}, you have been muted because you need to join the [channel](https://t.me/{channel_username}) to send messages in this group.**",
                 disable_web_page_preview=True
             )
-
-
 @app.on_callback_query(filters.regex("close_force_sub"))
 async def close_force_sub(client: Client, callback_query: CallbackQuery):
     await callback_query.answer("ᴄʟᴏsᴇᴅ!")
