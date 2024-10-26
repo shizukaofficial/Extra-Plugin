@@ -47,7 +47,6 @@ async def set_forcesub(client: Client, message: Message):
 
     except Exception as e:
         await message.reply_text("**🚫 Failed to set force subscription.**")
-
 @app.on_chat_member_updated()
 async def on_user_join(client: Client, chat_member_updated):
     chat_id = chat_member_updated.chat.id
@@ -60,8 +59,13 @@ async def on_user_join(client: Client, chat_member_updated):
     channel_id = forcesub_data["channel_id"]
     channel_username = forcesub_data["channel_username"]
 
+    # Ensure new_chat_member is not None
+    new_chat_member = chat_member_updated.new_chat_member
+    if new_chat_member is None:
+        return  # Exit if new_chat_member is None
+
     # Check if the user joined the group
-    if chat_member_updated.new_chat_member.status == "member":
+    if new_chat_member.status == "member":
         try:
             # Check if the user is a member of the channel
             user_member = await app.get_chat_member(channel_id, user_id)
