@@ -108,8 +108,12 @@ async def close_force_sub(client: Client, callback_query: CallbackQuery):
 
 async def check_forcesub(client: Client, message: Message):
     chat_id = message.chat.id
-    user_id = message.from_user.id
 
+    # Check if the message has a from_user attribute
+    if message.from_user is None:
+        return  # Exit if the message does not come from a user
+
+    user_id = message.from_user.id
     forcesub_data = forcesub_collection.find_one({"chat_id": chat_id})
     if not forcesub_data:
         return
@@ -122,7 +126,6 @@ async def check_forcesub(client: Client, message: Message):
         if user_member:
             return
     except UserNotParticipant:
-        await message.delete()
         if channel_username:
             channel_url = f"https://t.me/{channel_username}"
         else:
@@ -137,7 +140,6 @@ async def check_forcesub(client: Client, message: Message):
     except ChatAdminRequired:
         forcesub_collection.delete_one({"chat_id": chat_id})
         return await message.reply_text("**🚫 I'ᴍ ɴᴏ ʟᴏɴɢᴇʀ ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ғᴏʀᴄᴇᴅ sᴜʙsᴄʀɪᴘᴛɪᴏɴ ᴄʜᴀɴɴᴇʟ. ғᴏʀᴄᴇ sᴜʙsᴄʀɪᴘᴛɪᴏɴ ʜᴀs ʙᴇᴇɴ ᴅɪsᴀʙʟᴇᴅ.**")
-
 
 @app.on_message(filters.group, group=30)
 async def enforce_forcesub(client: Client, message: Message):
