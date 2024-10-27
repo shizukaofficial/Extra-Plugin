@@ -23,6 +23,7 @@ async def link_checker(userbot, message):
             return chat_id, int(msg_id), "public"
     return None, None, None
 
+
 @app.on_message(filters.command("fetch") & filters.private)
 async def fetch_message(client, message):
     if len(message.command) < 2:
@@ -66,6 +67,8 @@ async def fetch_message(client, message):
                 await client.send_voice(message.chat.id, file, caption=fetched_message.caption)
             elif fetched_message.media == MessageMediaType.STICKER:
                 await client.send_sticker(message.chat.id, file)
+            elif fetched_message.media == MessageMediaType.GIF:
+                await client.send_animation(message.chat.id, file, caption=fetched_message.caption)
             else:
                 await client.send_document(message.chat.id, file, caption=fetched_message.caption)
 
