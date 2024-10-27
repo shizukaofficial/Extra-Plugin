@@ -75,8 +75,10 @@ async def fetch_message(client, message):
             await message.reply_text(response_text)
 
         # Include additional information about the message type
-        response_text += f"\n\n**Message Type: {fetched_message.chat.type}\n" \
-                         f"**From: {fetched_message.from_user.first_name if fetched_message.from_user else 'Unknown'}"
+        chat_type = fetched_message.chat.type if fetched_message.chat else "Unknown"
+        from_user = fetched_message.from_user.first_name if fetched_message.from_user else 'Unknown'
+        response_text += f"\n\n**Message Type: {chat_type}\n" \
+                         f"**From: {from_user}"
 
         await message.reply_text(f"Fetched Message:\n{response_text}")
 
