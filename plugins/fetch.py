@@ -23,6 +23,9 @@ async def link_checker(userbot, message):
             return chat_id, int(msg_id), "public"
     return None, None, None
 
+async def progress_bar(current, total):
+    percentage = (current / total) * 100
+    print(f"Download progress: {percentage:.2f}%")
 
 @app.on_message(filters.command("fetch") & filters.private)
 async def fetch_message(client, message):
@@ -53,7 +56,7 @@ async def fetch_message(client, message):
 
         # Handle media
         if fetched_message.media:
-            # Download media
+            # Download media with progress
             file = await client.download_media(fetched_message, progress=progress_bar)
             if fetched_message.media == MessageMediaType.VIDEO:
                 await client.send_video(message.chat.id, file, caption=fetched_message.caption)
