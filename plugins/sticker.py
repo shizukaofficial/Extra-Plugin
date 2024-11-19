@@ -323,58 +323,91 @@ def generate_sticker(client, message):
         message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ sᴛɪᴄᴋᴇʀ ɪᴅ ᴀғᴛᴇʀ /st ᴄᴏᴍᴍᴀɴᴅ.")
 
 @app.on_message(filters.command("packkang"))
-async def _packkang(app: app, message):  
-    txt = await message.reply_text("**ᴘʀᴏᴄᴇssɪɴɢ....**")
+async def _packkang(app, message):
+    txt = await message.reply_text("ᴘʀᴏᴄᴇssɪɴɢ....")
+
     if not message.reply_to_message:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ!')
         return
+
     if not message.reply_to_message.sticker:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴀ sᴛɪᴄᴋᴇʀ!')
         return
 
     if len(message.command) < 2:
         pack_name = f'{message.from_user.first_name}_sticker_pack_by_@{BOT_USERNAME}'
     else:
         pack_name = message.text.split(maxsplit=1)[1]
-        
+
     short_name = message.reply_to_message.sticker.set_name
-    stickers = await app.invoke(
-        raw.functions.messages.GetStickerSet(
-            stickerset=raw.types.InputStickerSetShortName(
-                short_name=short_name),
-            hash=0))
-    
-    shits = stickers.documents
-    sticks = []
-    
-    for i in shits:
-        sex = raw.types.InputDocument(
-            id=i.id,
-            access_hash=i.access_hash,
-            file_reference=i.thumbs[0].bytes
+    try:
+        stickers = await app.invoke(
+            raw.functions.messages.GetStickerSet(
+                stickerset=raw.types.InputStickerSetShortName(short_name=short_name),
+                hash=0
+            )
         )
-        
+    except Exception as e:
+        await txt.edit(f"Error fetching sticker set: {str(e)}")
+        return
+
+    documents = stickers.documents
+    if not documents:
+        await txt.edit("Sticker set is empty or could not be fetched.")
+        return
+
+    sticks = []
+    for document in documents:
+        emoji = "🙂"
+        for attribute in document.attributes:
+            if isinstance(attribute, raw.types.DocumentAttributeSticker):
+                emoji = attribute.alt or "🙂"
+                break
+
+        input_document = raw.types.InputDocument(
+            id=document.id,
+            access_hash=document.access_hash,
+            file_reference=document.file_reference
+        )
         sticks.append(
             raw.types.InputStickerSetItem(
-                document=sex,
-                emoji=i.attributes[1].alt
+                document=input_document,
+                emoji=emoji
             )
         )
 
-    try:
-        short_name = f'stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
-        user_id = await app.resolve_peer(message.from_user.id)
-        await app.invoke(
-            raw.functions.stickers.CreateStickerSet(
-                user_id=user_id,
-                title=pack_name,
-                short_name=short_name,
-                stickers=sticks,
+    short_name = f'sticker_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
+    user_id = await app.resolve_peer(message.from_user.id)
+
+    for attempt in range(3):
+        try:
+            await app.invoke(
+                raw.functions.stickers.CreateStickerSet(
+                    user_id=user_id,
+                    title=pack_name,
+                    short_name=short_name,
+                    stickers=sticks,
+                )
             )
-        )
-        await txt.edit(f"**ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ**!\n**ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ **: {len(sticks)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]))
-    except Exception as e:
-        await message.reply(str(e))
+            await txt.edit(
+                f"ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ!\nᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀs: {len(sticks)}",
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]
+                )
+            )
+            return
+        except Exception as e:
+            if "Timeout" in str(e):
+                if attempt < 2: 
+                    await txt.edit(f"Retrying... ({attempt + 1}/3)")
+                    await asyncio.sleep(5)
+                else:
+                    await txt.edit(f"Failed after 3 retries: {str(e)}")
+            elif "FLOOD_WAIT_X" in str(e):
+             await asyncio.sleep(e.value)
+            else:
+                await txt.edit(f"Error: {str(e)}")
+                return
 
 __MODULE__ = "Sᴛɪᴄᴋᴇʀ"
 __HELP__ = """
