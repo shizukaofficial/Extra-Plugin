@@ -323,67 +323,58 @@ def generate_sticker(client, message):
         message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ sᴛɪᴄᴋᴇʀ ɪᴅ ᴀғᴛᴇʀ /st ᴄᴏᴍᴍᴀɴᴅ.")
 
 @app.on_message(filters.command("packkang"))
-async def _packkang(app: app, message):  
-    txt = await message.reply_text("**ᴘʀᴏᴄᴇssɪɴɢ....**")
+async def _packkang(app :app,message):  
+    txt = await message.reply_text("**✦ ᴘʀᴏᴄᴇssɪɴɢ....**")
     if not message.reply_to_message:
-        return await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
+        return
     if not message.reply_to_message.sticker:
-        return await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
-    
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
+        return
+    if message.reply_to_message.sticker.is_animated or  message.reply_to_message.sticker.is_video:
+        return await txt.edit("ʀᴇᴘʟʏ ᴛᴏ ᴀ ɴᴏɴ-ᴀɴɪᴍᴀᴛᴇᴅ sᴛɪᴄᴋᴇʀ")
     if len(message.command) < 2:
-        pack_name = f'{message.from_user.first_name}_sticker_pack_by_@{BOT_USERNAME}'
-    else:
+        pack_name =  f'{message.from_user.first_name}_sticker_pack_by_@{BOT_USERNAME}'
+    else :
         pack_name = message.text.split(maxsplit=1)[1]
-        
     short_name = message.reply_to_message.sticker.set_name
     stickers = await app.invoke(
-        raw.functions.messages.GetStickerSet(
-            stickerset=raw.types.InputStickerSetShortName(short_name=short_name),
-            hash=0)
-    )
-    
+        pyrogram.raw.functions.messages.GetStickerSet(
+            stickerset=pyrogram.raw.types.InputStickerSetShortName(
+                short_name=short_name),
+            hash=0))
     shits = stickers.documents
     sticks = []
     
     for i in shits:
-        if i.thumbs:
-            thumb = i.thumbs[0]
-            if isinstance(thumb, raw.types.PhotoSize):
-                file_reference = thumb.file_id  # Use file_id for PhotoSize
-            elif isinstance(thumb, raw.types.PhotoPathSize):
-                file_reference = thumb.file_path  # Use file_path for PhotoPathSize
-            else:
-                file_reference = None  # Handle the case where it's neither
-        else:
-            file_reference = None  # Handle the case where there are no thumbnails
-
-        sex = raw.types.InputDocument(
-            id=i.id,
-            access_hash=i.access_hash,
-            file_reference=file_reference
-        )
+        sex = pyrogram.raw.types.InputDocument(
+                id=i.id,
+                access_hash=i.access_hash,
+                file_reference=i.thumbs[0].bytes
+            )
         
         sticks.append(
-            raw.types.InputStickerSetItem(
+            pyrogram.raw.types.InputStickerSetItem(
                 document=sex,
                 emoji=i.attributes[1].alt
             )
         )
 
     try:
-        short_name = f'stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
+        short_name = f'stikcer_pack_{str(uuid4()).replace("-","")}_by_{app.me.username}'
         user_id = await app.resolve_peer(message.from_user.id)
         await app.invoke(
-            raw.functions.stickers.CreateStickerSet(
+            pyrogram.raw.functions.stickers.CreateStickerSet(
                 user_id=user_id,
                 title=pack_name,
                 short_name=short_name,
                 stickers=sticks,
             )
         )
-        await txt.edit(f"**ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ**!\n**ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ **: {len(sticks)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]))
+        await txt.edit(f"❖ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ !\n● ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ ➥ {len(sticks)}",reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ",url=f"http://t.me/addstickers/{short_name}")]]))
     except Exception as e:
         await message.reply(str(e))
+
 
 
 __MODULE__ = "Sᴛɪᴄᴋᴇʀ"
