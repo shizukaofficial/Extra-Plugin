@@ -335,10 +335,13 @@ async def _packkang(app: app, message):
         return
     
     # Define the sticker pack name
-    pack_name = f'{message.from_user.first_name} sᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋ ʙʏ @{BOT_USERNAME}' if len(message.command) < 2 else message.text.split(maxsplit=1)[1]
+    pack_name = f"{message.from_user.first_name}_Sticker_Pack" if len(message.command) < 2 else message.text.split(maxsplit=1)[1]
     
-    short_name = message.reply_to_message.sticker.set_name
-    
+    # Normalize the short name
+    short_name = f"{pack_name.replace(' ', '_').lower()}_by_{BOT_USERNAME}"  # Replace spaces with underscores and convert to lowercase
+    short_name = short_name.replace('__', '_')  # Replace consecutive underscores with a single underscore
+    short_name = short_name.strip('_')  # Remove leading/trailing underscores
+
     try:
         # Fetch the sticker set
         stickers = await app.invoke(
@@ -372,11 +375,9 @@ async def _packkang(app: app, message):
             )
 
         # Create the sticker pack
-        short_name = f'@TheChampu_stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
-        user_id = await app.resolve_peer(message.from_user.id)
         await app.invoke(
             raw.functions.stickers.CreateStickerSet(
-                user_id=user_id,
+                user_id=await app.resolve_peer(message.from_user.id),
                 title=pack_name,
                 short_name=short_name,
                 stickers=sticks,
