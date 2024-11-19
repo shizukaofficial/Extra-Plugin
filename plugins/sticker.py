@@ -353,32 +353,26 @@ async def _packkang(app: app, message):
 
         # Iterate through the stickers and create the sticker items
         for i in shits:
-            if i.thumbs:
-                thumb = i.thumbs[0]
-                if isinstance(thumb, raw.types.PhotoSize):
-                    file_reference = thumb.file_id  # Use file_id for PhotoSize
-                elif isinstance(thumb, raw.types.PhotoPathSize):
-                    file_reference = thumb.file_path  # Use file_path for PhotoPathSize
-                else:
-                    file_reference = None  # Handle the case where it's neither
-            else:
-                file_reference = None  # Handle the case where there are no thumbnails
-            
+            # Create InputDocument for each sticker
             sex = raw.types.InputDocument(
                 id=i.id,
                 access_hash=i.access_hash,
-                file_reference=file_reference
+                file_reference=i.file_reference  # Use file_reference directly
             )
 
+            # Check if the sticker has attributes for emoji
+            emoji = i.attributes[1].alt if len(i.attributes) > 1 else ""  # Use alt if available
+
+            # Append to the sticker list
             sticks.append(
                 raw.types.InputStickerSetItem(
                     document=sex,
-                    emoji=i.attributes[1].alt if i.attributes else ""  # Use alt if available
+                    emoji=emoji
                 )
             )
 
         # Create the sticker pack
-        short_name = f'stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
+        short_name = f'@TheChampu_stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
         user_id = await app.resolve_peer(message.from_user.id)
         await app.invoke(
             raw.functions.stickers.CreateStickerSet(
