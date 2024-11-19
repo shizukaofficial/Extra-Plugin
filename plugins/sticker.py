@@ -321,52 +321,43 @@ def generate_sticker(client, message):
             message.reply_text(f"Error: {e}")
     else:
         message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ sᴛɪᴄᴋᴇʀ ɪᴅ ᴀғᴛᴇʀ /st ᴄᴏᴍᴍᴀɴᴅ.")
-
 @app.on_message(filters.command("packkang"))
 async def _packkang(app: app, message):  
     txt = await message.reply_text("**ᴘʀᴏᴄᴇssɪɴɢ....**")
     
     # Check if the message is a reply and contains a sticker
-    if not message.reply_to_message:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
-        return
-    if not message.reply_to_message.sticker:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
+    if not message.reply_to_message or not message.reply_to_message.sticker:
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴡɪᴛʜ ᴀ sᴛɪᴄᴋᴇʀ.')
         return
     
     # Define the sticker pack name
-    pack_name = f"{message.from_user.first_name}_Sticker_Pack" if len(message.command) < 2 else message.text.split(maxsplit=1)[1]
+    pack_name = f"{message.from_user.first_name}_Sticker_Pack"
+    short_name = f"{pack_name.replace(' ', '_').lower()}_by_{BOT_USERNAME}"
     
-    # Normalize the short name
-    short_name = f"{pack_name.replace(' ', '_').lower()}_by_{BOT_USERNAME}"  # Replace spaces with underscores and convert to lowercase
-    short_name = short_name.replace('__', '_')  # Replace consecutive underscores with a single underscore
-    short_name = short_name.strip('_')  # Remove leading/trailing underscores
-
     try:
-        # Fetch the sticker set
-        stickers = await app.invoke(
+        # Check if the sticker is part of a sticker set
+        sticker_set = await app.invoke(
             raw.functions.messages.GetStickerSet(
                 stickerset=raw.types.InputStickerSetShortName(short_name=short_name),
                 hash=0
             )
         )
-
-        shits = stickers.documents
+        
+        if sticker_set is None:
+            await txt.edit("The sticker set is invalid or does not exist.")
+            return
+        
+        # Create the sticker set if it doesn't exist
+        shits = sticker_set.documents
         sticks = []
 
-        # Iterate through the stickers and create the sticker items
         for i in shits:
-            # Create InputDocument for each sticker
             sex = raw.types.InputDocument(
                 id=i.id,
                 access_hash=i.access_hash,
-                file_reference=i.file_reference  # Use file_reference directly
+                file_reference=i.file_reference
             )
-
-            # Check if the sticker has attributes for emoji
-            emoji = i.attributes[1].alt if len(i.attributes) > 1 else ""  # Use alt if available
-
-            # Append to the sticker list
+            emoji = i.attributes[1].alt if len(i.attributes) > 1 else ""
             sticks.append(
                 raw.types.InputStickerSetItem(
                     document=sex,
