@@ -346,10 +346,21 @@ async def _packkang(app: app, message):
     sticks = []
     
     for i in shits:
+        if i.thumbs:
+            thumb = i.thumbs[0]
+            if isinstance(thumb, raw.types.PhotoSize):
+                file_reference = thumb.file_id  # Use file_id for PhotoSize
+            elif isinstance(thumb, raw.types.PhotoPathSize):
+                file_reference = thumb.file_path  # Use file_path for PhotoPathSize
+            else:
+                file_reference = None  # Handle the case where it's neither
+        else:
+            file_reference = None  # Handle the case where there are no thumbnails
+
         sex = raw.types.InputDocument(
             id=i.id,
             access_hash=i.access_hash,
-            file_reference=i.thumbs[0].file_id if i.thumbs else None  # Fix here
+            file_reference=file_reference
         )
         
         sticks.append(
@@ -373,7 +384,7 @@ async def _packkang(app: app, message):
         await txt.edit(f"**ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ**!\n**ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ **: {len(sticks)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]))
     except Exception as e:
         await message.reply(str(e))
-        
+
 
 __MODULE__ = "Sᴛɪᴄᴋᴇʀ"
 __HELP__ = """
