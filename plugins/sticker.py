@@ -326,12 +326,10 @@ def generate_sticker(client, message):
 async def _packkang(app: app, message):  
     txt = await message.reply_text("**ᴘʀᴏᴄᴇssɪɴɢ....**")
     if not message.reply_to_message:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
-        return
+        return await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
     if not message.reply_to_message.sticker:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
-        return
-
+        return await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
+    
     if len(message.command) < 2:
         pack_name = f'{message.from_user.first_name}_sticker_pack_by_@{BOT_USERNAME}'
     else:
@@ -340,9 +338,9 @@ async def _packkang(app: app, message):
     short_name = message.reply_to_message.sticker.set_name
     stickers = await app.invoke(
         raw.functions.messages.GetStickerSet(
-            stickerset=raw.types.InputStickerSetShortName(
-                short_name=short_name),
-            hash=0))
+            stickerset=raw.types.InputStickerSetShortName(short_name=short_name),
+            hash=0)
+    )
     
     shits = stickers.documents
     sticks = []
@@ -351,7 +349,7 @@ async def _packkang(app: app, message):
         sex = raw.types.InputDocument(
             id=i.id,
             access_hash=i.access_hash,
-            file_reference=i.thumbs[0].bytes
+            file_reference=i.thumbs[0].file_id if i.thumbs else None  # Fix here
         )
         
         sticks.append(
@@ -375,6 +373,7 @@ async def _packkang(app: app, message):
         await txt.edit(f"**ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ**!\n**ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ **: {len(sticks)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]))
     except Exception as e:
         await message.reply(str(e))
+        
 
 __MODULE__ = "Sᴛɪᴄᴋᴇʀ"
 __HELP__ = """
