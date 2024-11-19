@@ -321,54 +321,52 @@ def generate_sticker(client, message):
             message.reply_text(f"Error: {e}")
     else:
         message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ sᴛɪᴄᴋᴇʀ ɪᴅ ᴀғᴛᴇʀ /st ᴄᴏᴍᴍᴀɴᴅ.")
+
 @app.on_message(filters.command("packkang"))
 async def _packkang(app: app, message):  
     txt = await message.reply_text("**ᴘʀᴏᴄᴇssɪɴɢ....**")
-    
-    # Check if the message is a reply and contains a sticker
-    if not message.reply_to_message or not message.reply_to_message.sticker:
-        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴡɪᴛʜ ᴀ sᴛɪᴄᴋᴇʀ.')
+    if not message.reply_to_message:
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ ᴍᴇssᴀɢᴇ')
         return
+    if not message.reply_to_message.sticker:
+        await txt.edit('ʀᴇᴘʟʏ ᴛᴏ sᴛɪᴄᴋᴇʀ')
+        return
+
+    if len(message.command) < 2:
+        pack_name = f'{message.from_user.first_name}_sticker_pack_by_@{BOT_USERNAME}'
+    else:
+        pack_name = message.text.split(maxsplit=1)[1]
+        
+    short_name = message.reply_to_message.sticker.set_name
+    stickers = await app.invoke(
+        raw.functions.messages.GetStickerSet(
+            stickerset=raw.types.InputStickerSetShortName(
+                short_name=short_name),
+            hash=0))
     
-    # Define the sticker pack name
-    pack_name = f"{message.from_user.first_name}_Sticker_Pack"
-    short_name = f"{pack_name.replace(' ', '_').lower()}_by_{BOT_USERNAME}"
+    shits = stickers.documents
+    sticks = []
     
-    try:
-        # Check if the sticker is part of a sticker set
-        sticker_set = await app.invoke(
-            raw.functions.messages.GetStickerSet(
-                stickerset=raw.types.InputStickerSetShortName(short_name=short_name),
-                hash=0
-            )
+    for i in shits:
+        sex = raw.types.InputDocument(
+            id=i.id,
+            access_hash=i.access_hash,
+            file_reference=i.thumbs[0].bytes
         )
         
-        if sticker_set is None:
-            await txt.edit("The sticker set is invalid or does not exist.")
-            return
-        
-        # Create the sticker set if it doesn't exist
-        shits = sticker_set.documents
-        sticks = []
-
-        for i in shits:
-            sex = raw.types.InputDocument(
-                id=i.id,
-                access_hash=i.access_hash,
-                file_reference=i.file_reference
+        sticks.append(
+            raw.types.InputStickerSetItem(
+                document=sex,
+                emoji=i.attributes[1].alt
             )
-            emoji = i.attributes[1].alt if len(i.attributes) > 1 else ""
-            sticks.append(
-                raw.types.InputStickerSetItem(
-                    document=sex,
-                    emoji=emoji
-                )
-            )
+        )
 
-        # Create the sticker pack
+    try:
+        short_name = f'stikcer_pack_{str(uuid4()).replace("-", "")}_by_{app.me.username}'
+        user_id = await app.resolve_peer(message.from_user.id)
         await app.invoke(
             raw.functions.stickers.CreateStickerSet(
-                user_id=await app.resolve_peer(message.from_user.id),
+                user_id=user_id,
                 title=pack_name,
                 short_name=short_name,
                 stickers=sticks,
@@ -376,9 +374,7 @@ async def _packkang(app: app, message):
         )
         await txt.edit(f"**ʜᴇʀᴇ ɪs ʏᴏᴜʀ ᴋᴀɴɢᴇᴅ ʟɪɴᴋ**!\n**ᴛᴏᴛᴀʟ sᴛɪᴄᴋᴇʀ **: {len(sticks)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ᴘᴀᴄᴋ ʟɪɴᴋ", url=f"http://t.me/addstickers/{short_name}")]]))
     except Exception as e:
-        await txt.edit(f"Error occurred: {str(e)}")
-
-
+        await message.reply(str(e))
 
 __MODULE__ = "Sᴛɪᴄᴋᴇʀ"
 __HELP__ = """
