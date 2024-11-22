@@ -237,7 +237,8 @@ async def take_flood_action(client, message, action):
 
 @app.on_callback_query()
 async def callback_handler(client: Client, callback_query: CallbackQuery):
-    chat_id = callback_query.message.chat.id
+    if callback_query.message is None:
+        return await callback_query.answer("This action is no longer valid.", show_alert=True)
     try:
         permissions = await member_permissions(chat_id, callback_query.from_user.id)
         permission = "can_restrict_members"
