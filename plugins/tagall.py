@@ -1,7 +1,6 @@
 import asyncio
 from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
-from ChampuMusic.plugins.bot import cooldown
 from pyrogram.errors import FloodWait
 
 from ChampuMusic import app
@@ -254,7 +253,6 @@ async def admintag_with_reporting(client, message):
         prefixes=["/", "@"],
     )
 )
-@cooldown(30)
 async def cancelcmd(_, message):
     chat_id = message.chat.id
     admin = await is_admin(chat_id, message.from_user.id)
