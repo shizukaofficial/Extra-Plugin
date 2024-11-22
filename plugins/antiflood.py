@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from pyrogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import UserAdminInvalid
 from pyrogram.enums import ChatMemberStatus
+from ChampuMusic.plugins.bot import cooldown
 from utils.permissions import adminsOnly, member_permissions
 from pyrogram import Client, filters
 from pyrogram.types import CallbackQuery, ChatPermissions
@@ -47,6 +48,7 @@ async def check_admin_rights(client, message: Message):
 
 
 @app.on_message(filters.command("flood"))
+@cooldown(30)
 async def get_flood_settings(client, message: Message):
     if not await check_admin_rights(client, message):
         return
