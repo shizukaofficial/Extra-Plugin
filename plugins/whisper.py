@@ -1,11 +1,9 @@
-from ChampuMusic import app as app
-from config import BOT_USERNAME
+from ChampuMusic import app
 from pyrogram import filters
 from pyrogram.types import (
     InlineQueryResultArticle, InputTextMessageContent,
     InlineKeyboardMarkup, InlineKeyboardButton
 )
-
 whisper_db = {}
 
 switch_btn = InlineKeyboardMarkup([[InlineKeyboardButton("💒 Start Whisper", switch_inline_query_current_chat="")]])
@@ -18,8 +16,8 @@ async def _whisper(_, inline_query):
         mm = [
             InlineQueryResultArticle(
                 title="💒 Whisper",
-                description=f"@{BOT_USERNAME} [ USERNAME | ID ] [ TEXT ]",
-                input_message_content=InputTextMessageContent(f"💒 Usage:\n\n@{BOT_USERNAME} [ USERNAME | ID ] [ TEXT ]"),
+                description=f"@TheChampuBot [ USERNAME | ID ] [ TEXT ]",
+                input_message_content=InputTextMessageContent(f"💒 Usage:\n\n@TheChampuBot [ USERNAME | ID ] [ TEXT ]"),
                 thumb_url="https://telegra.ph/file/cef50394cb41a2bdb4121.jpg",
                 reply_markup=switch_btn
             )
@@ -111,7 +109,7 @@ async def in_help():
         InlineQueryResultArticle(
             title="💒 Whisper",
             description=f"@TheChampuBot [USERNAME | ID] [TEXT]",
-            input_message_content=InputTextMessageContent(f"**📍Usage:**\n\n@TheChampuBot (Target Username or ID) (Your Message).\n\n**Example:**\n@TheChampuBot @username I Wanna Phuck You"),
+            input_message_content=InputTextMessageContent(f"**📍Usage:**\n\n@TheChampuBot (Target Username or ID) (Your Message).\n\n**Example:**\n@TheChampuBot @username I Love You"),
             thumb_url="https://telegra.ph/file/cef50394cb41a2bdb4121.jpg",
             reply_markup=switch_btn
         )
