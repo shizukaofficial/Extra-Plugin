@@ -80,7 +80,6 @@ async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_re
     raise Exception(f"Failed to send reaction after {max_retries} attempts")
 
 @app.on_message(filters.command("react"))
-@cooldown(30)
 async def react_to_message(client, message: Message):
     if message.reply_to_message:
         try:
@@ -133,7 +132,6 @@ async def react_to_message(client, message: Message):
         await message.reply("Please reply to a message to react to it.")
 
 @app.on_message(filters.channel)
-@cooldown(30)
 async def auto_react_to_channel_post(client, message: Message):
     try:
         allowed_reactions = await get_channel_reactions(message.chat.id)
