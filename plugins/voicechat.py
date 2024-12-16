@@ -113,7 +113,11 @@ async def brah2(_, msg):
 
 @app.on_message(filters.video_chat_members_invited)
 async def brah3(app: app, message: Message):
-    text = f"➻ {message.from_user.mention}\n\n**๏ ɪɴᴠɪᴛɪɴɢ ɪɴ ᴠᴄ ᴛᴏ :**\n\n**➻ **"
+    # Check if from_user is not None
+    if message.from_user:
+        text = f"➻ {message.from_user.mention}\n\n**๏ ɪɴᴠɪᴛɪɴɢ ɪɴ ᴠᴄ ᴛᴏ :**\n\n**➻ **"
+    else:
+        text = "➻ Unknown User\n\n**๏ ɪɴᴠɪᴛɪɴɢ ɪɴ ᴠᴄ ᴛᴏ :**\n\n**➻ **"
     x = 0
     for user in message.video_chat_members_invited.users:
         try:
