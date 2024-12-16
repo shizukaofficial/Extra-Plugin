@@ -11,11 +11,11 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 @app.on_message(filters.command(["tgm"]))
 async def get_link_group(client, message):
     user = message.from_user
-    logging.info(f"Received media from {user.first_name}")
+    logging.info(f"ʀᴇᴄᴇɪᴠᴇᴅ ᴍᴇᴅɪᴀ ғʀᴏᴍ {user.first_name}")
 
     # Check if the message is a reply to a media message
     if not message.reply_to_message:
-        await message.reply_text("Please reply to a media message.")
+        await message.reply_text("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇᴅɪᴀ ᴍᴇssᴀɢᴇ.")
         return
 
     media = message.reply_to_message
@@ -28,28 +28,28 @@ async def get_link_group(client, message):
         file_size = media.document.file_size
 
     if file_size > 15 * 1024 * 1024:
-        await message.reply_text("Please provide a media file under 15MB.")
+        await message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴍᴇᴅɪᴀ ғɪʟᴇ ᴜɴᴅᴇʀ 𝟷𝟻ᴍʙ.")
         return
 
     try:
-        text = await message.reply_text("Processing...")
+        text = await message.reply_text("ᴘʀᴏᴄᴇssɪɴɢ...")
 
         async def progress(current, total):
             try:
-                await text.edit_text(f"Downloading... {current * 100 / total:.1f}%")
+                await text.edit_text(f"ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ... {current * 100 / total:.1f}%")
             except Exception:
                 pass
 
         try:
             local_path = await media.download(progress=progress)
-            await text.edit_text("Uploading to Telegraph...")
+            await text.edit_text("ᴜᴘʟᴏᴀᴅɪɴɢ ᴛᴏ ᴛᴇʟᴇɢʀᴀᴘʜ...")
 
             upload_result = api.upload_image(local_path)
 
             if isinstance(upload_result, str):
-                await text.edit_text(f"Here is your link: {upload_result}")
+                await text.edit_text(f"ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ: {upload_result}")
             else:
-                await text.edit_text(f"Failed to upload the media. Please try again later.\n\nReason: {upload_result}")
+                await text.edit_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴜᴘʟᴏᴀᴅ ᴛʜᴇ ᴍᴇᴅɪᴀ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.\n\nʀᴇᴀsᴏɴ: {upload_result}")
 
             try:
                 os.remove(local_path)
@@ -57,7 +57,7 @@ async def get_link_group(client, message):
                 pass
 
         except Exception as e:
-            await text.edit_text(f"Failed to upload the media. Please try again later.\n\nReason: {e}")
+            await text.edit_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴜᴘʟᴏᴀᴅ ᴛʜᴇ ᴍᴇᴅɪᴀ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.\n\nʀᴇᴀsᴏɴ: {e}")
             try:
                 os.remove(local_path)
             except Exception:

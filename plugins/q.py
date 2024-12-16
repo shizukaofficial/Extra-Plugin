@@ -279,7 +279,7 @@ async def msg_quotly_cmd(self: app, ctx: Message):
             try:
                 make_quotly = await pyrogram_to_quotly(messages, is_reply=is_reply)
                 bio_sticker = BytesIO(make_quotly)
-                bio_sticker.name = "misskatyquote_sticker.webp"
+                bio_sticker.name = "champuquote_sticker.webp"
                 await ww.delete()
                 return await ctx.reply_sticker(bio_sticker)
             except Exception:
@@ -296,12 +296,12 @@ async def msg_quotly_cmd(self: app, ctx: Message):
     try:
         make_quotly = await pyrogram_to_quotly(messages, is_reply=is_reply)
         bio_sticker = BytesIO(make_quotly)
-        bio_sticker.name = "misskatyquote_sticker.webp"
+        bio_sticker.name = "champuquote_sticker.webp"
         await ww.delete()
         return await ctx.reply_sticker(bio_sticker)
     except Exception as e:
         await ww.delete()
-        return await ctx.reply_msg(f"ERROR: {e}")
+        return await ctx.reply_msg(f"ᴇʀʀᴏʀ: {e}")
 
 
 __HELP__ = """

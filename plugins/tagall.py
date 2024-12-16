@@ -213,13 +213,13 @@ async def admintag_with_reporting(client, message):
         return await tag_all_admins(client, message)
 
     if len(message.text.split()) <= 1 and not message.reply_to_message:
-        return await message.reply_text("Reply to a message to report that user.")
+        return await message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴘᴏʀᴛ ᴛʜᴀᴛ ᴜsᴇʀ.")
 
     reply = message.reply_to_message or message
     reply_user_id = reply.from_user.id if reply.from_user else reply.sender_chat.id
     linked_chat = (await client.get_chat(chat_id)).linked_chat
     if reply_user_id == app.id:
-        return await message.reply_text("Why would I report myself?")
+        return await message.reply_text("ᴡʜʏ ᴡᴏᴜʟᴅ ɪ ʀᴇᴘᴏʀᴛ ᴍʏsᴇʟғ?")
     if (
         reply_user_id in admins
         or reply_user_id == chat_id

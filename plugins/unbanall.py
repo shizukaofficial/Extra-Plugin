@@ -24,7 +24,7 @@ async def unban_all(_, msg):
 
         ok = await app.send_message(
             chat_id,
-            f"Total **{len(banned_users)}** users found to unban.\n**Started unbanning..**",
+            f"ᴛᴏᴛᴀʟ **{len(banned_users)}** ᴜsᴇʀs ғᴏᴜɴᴅ ᴛᴏ ᴜɴʙᴀɴ.\n**sᴛᴀʀᴛᴇᴅ ᴜɴʙᴀɴɴɪɴɢ..**",
         )
 
         for user_id in banned_users:
@@ -34,13 +34,13 @@ async def unban_all(_, msg):
 
                 if x % 5 == 0:
                     await ok.edit_text(
-                        f"Unbanned {x} out of {len(banned_users)} users."
+                        f"ᴜɴʙᴀɴɴᴇᴅ {x} ᴏᴜᴛ ᴏғ {len(banned_users)} ᴜsᴇʀs."
                     )
 
             except Exception:
                 pass
 
-        await ok.edit_text(f"Unbanned all {len(banned_users)} users.")
+        await ok.edit_text(f"ᴜɴʙᴀɴɴᴇᴅ ᴀʟʟ {len(banned_users)} ᴜsᴇʀs.")
 
     else:
         await msg.reply_text(

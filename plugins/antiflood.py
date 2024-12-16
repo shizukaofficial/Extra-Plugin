@@ -42,7 +42,7 @@ async def check_admin_rights(client, message: Message):
             return True
     except UserNotParticipant:
         pass
-    await message.reply("**You are not an admin.**")
+    await message.reply("**ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ.**")
     return False
 
 

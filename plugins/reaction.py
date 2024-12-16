@@ -12,15 +12,15 @@ DEFAULT_REACTION_LIST = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉
 async def send_log(message: str, chat_id: int, chat_title: str, message_id: int):
     try:
         channel_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton(text="Go to Message", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")
+            InlineKeyboardButton(text="ɢᴏ ᴛᴏ ᴍᴇssᴀɢᴇ", url=f"https://t.me/c/{str(chat_id)[4:]}/{message_id}")
         ]])
         await app.send_message(
             LOGGER_ID,
-            f"{message}\n\nChannel: {chat_title}\nChannel ID: `{chat_id}`\nMessage ID: `{message_id}`",
+            f"{message}\n\nᴄʜᴀɴɴᴇʟ: {chat_title}\nᴄʜᴀɴɴᴇʟ ɪᴅ: `{chat_id}`\nᴍᴇssᴀɢᴇ ɪᴅ: `{message_id}`",
             reply_markup=channel_button
         )
     except Exception as e:
-        print(f"Failed to send log: {e}")
+        print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʟᴏɢ: {e}")
 
 async def get_channel_reactions(chat_id):
     return DEFAULT_REACTION_LIST
@@ -34,7 +34,7 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
             retries += 1
             delay = initial_delay * (2 ** retries) + random.uniform(0, 1)
             await send_log(
-                f"FloodWait detected. Retrying in {delay:.2f} seconds...",
+                f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ʀᴇᴛʀʏɪɴɢ ɪɴ {delay:.2f} sᴇᴄᴏɴᴅs...",
                 kwargs.get('chat_id', 'Unknown'),
                 kwargs.get('chat_title', 'Unknown'),
                 kwargs.get('message_id', 'Unknown')
@@ -42,9 +42,9 @@ async def retry_with_backoff(func, *args, max_retries=5, initial_delay=1, **kwar
             await asyncio.sleep(delay)
         except Exception as e:
             # Log the error and return None to indicate failure
-            print(f"Error in retry_with_backoff: {str(e)}")
+            print(f"ᴇʀʀᴏʀ ɪɴ ʀᴇᴛʀʏ_ᴡɪᴛʜ_ʙᴀᴄᴋᴏғғ: {str(e)}")
             return None
-    raise Exception(f"Failed after {max_retries} retries")
+    raise Exception(f"ғᴀɪʟᴇᴅ ᴀғᴛᴇʀ {max_retries} ʀᴇᴛʀɪᴇs")
 
 async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_retries=3):
     for _ in range(max_retries):
@@ -52,31 +52,31 @@ async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_re
             await client.send_reaction(chat_id=chat_id, message_id=message_id, emoji=emoji)
             return  # Success, exit the function
         except Exception as e:
-            print(f"Failed to send reaction {emoji}: {str(e)}")
+            print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ {emoji}: {str(e)}")
             # Select a new random emoji
             emoji = random.choice(DEFAULT_REACTION_LIST)
-    raise Exception(f"Failed to send reaction after {max_retries} attempts")
+    raise Exception(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ ᴀғᴛᴇʀ {max_retries} ᴀᴛᴛᴇᴍᴘᴛs")
 async def send_reaction_with_fallback(client, chat_id, message_id, emoji, max_retries=3):
     if emoji not in DEFAULT_REACTION_LIST:
-        print(f"Invalid emoji attempted: {emoji}")
+        print(f"ɪɴᴠᴀʟɪᴅ ᴇᴍᴏᴊɪ ᴀᴛᴛᴇᴍᴘᴛᴇᴅ: {emoji}")
         return  # Skip sending if emoji is invalid
 
     for attempt in range(max_retries):
         try:
-            print(f"Attempting to send reaction: {emoji} to message ID: {message_id} in chat ID: {chat_id}")
+            print(f"ᴀᴛᴛᴇᴍᴘᴛɪɴɢ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ: {emoji} to ᴍᴇssᴀɢᴇ ɪᴅ: {message_id} ɪɴ ᴄʜᴀᴛ ɪᴅ: {chat_id}")
             await client.send_reaction(chat_id=chat_id, message_id=message_id, emoji=emoji)
-            print(f"Successfully sent reaction: {emoji}")  # Log only on success
+            print(f"sᴜᴄᴄᴇssғᴜʟʟʏ sᴇɴᴛ ʀᴇᴀᴄᴛɪᴏɴ: {emoji}")  # Log only on success
             return  # Success, exit the function
         except FloodWait as e:
             wait_time = e.x  # Get the wait time from the FloodWait exception
-            print(f"FloodWait detected. Waiting for {wait_time} seconds before retrying...")
+            print(f"ғʟᴏᴏᴅᴡᴀɪᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. ᴡᴀɪᴛɪɴɢ ғᴏʀ {wait_time} sᴇᴄᴏɴᴅs ʙᴇғᴏʀᴇ ʀᴇᴛʀʏɪɴɢ...")
             await asyncio.sleep(wait_time)  # Wait for the specified time
         except Exception as e:
-            print(f"Failed to send reaction {emoji}: {str(e)}")
+            print(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ {emoji}: {str(e)}")
             # Select a new random emoji
             emoji = random.choice(DEFAULT_REACTION_LIST)
     
-    raise Exception(f"Failed to send reaction after {max_retries} attempts")
+    raise Exception(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ ᴀғᴛᴇʀ {max_retries} ᴀᴛᴛᴇᴍᴘᴛs")
 
 @app.on_message(filters.command("react"))
 async def react_to_message(client, message: Message):
@@ -86,7 +86,7 @@ async def react_to_message(client, message: Message):
         
             if not allowed_reactions:
                 await message.chat.send_message(
-                    f"No reactions available for in this group.",
+                    f"ɴᴏ ʀᴇᴀᴄᴛɪᴏɴs ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.",
                     message.chat.id,
                     message.chat.title,
                     message.id
@@ -105,7 +105,7 @@ async def react_to_message(client, message: Message):
                         bot_group_react
                     )
                 except Exception as e:
-                    print(f"Assistant failed to react: {str(e)}")
+                    print(f"ᴀssɪsᴛᴀɴᴛ ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ: {str(e)}")
             
             # Attempt to send reaction with the client (bot)
             assistant_group_react = random.choice(allowed_reactions)
@@ -117,18 +117,18 @@ async def react_to_message(client, message: Message):
                     assistant_group_react
                 )
             except Exception as e:
-                print(f"Client failed to react: {str(e)}")
+                print(f"ᴄʟɪᴇɴᴛ ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ: {str(e)}")
         
         except Exception as e:
-            await message.reply(f"Failed to send reaction. Error: {str(e)}")
+            await message.reply(f"ғᴀɪʟᴇᴅ ᴛᴏ sᴇɴᴅ ʀᴇᴀᴄᴛɪᴏɴ. ᴇʀʀᴏʀ: {str(e)}")
         
         finally:
             try:
                 await message.delete()  # Delete the command message
             except Exception as e:
-                print(f"Failed to delete message: {str(e)}")
+                print(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴍᴇssᴀɢᴇ: {str(e)}")
     else:
-        await message.reply("Please reply to a message to react to it.")
+        await message.reply("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ɪᴛ.")
 
 @app.on_message(filters.channel)
 async def auto_react_to_channel_post(client, message: Message):
@@ -137,7 +137,7 @@ async def auto_react_to_channel_post(client, message: Message):
         
         if not allowed_reactions:
             await send_log(
-                f"No reactions available for this channel.",
+                f"ɴᴏ ʀᴇᴀᴄᴛɪᴏɴs ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛʜɪs ᴄʜᴀɴɴᴇʟ.",
                 message.chat.id,
                 message.chat.title,
                 message.id
@@ -145,7 +145,7 @@ async def auto_react_to_channel_post(client, message: Message):
             return
         
         selected_react = random.choice(allowed_reactions)
-        print(f"Selected reaction for channel post: {selected_react}")
+        print(f"sᴇʟᴇᴄᴛᴇᴅ ʀᴇᴀᴄᴛɪᴏɴ ғᴏʀ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ: {selected_react}")
 
         # Attempt to react with the bot first
         try:
@@ -156,13 +156,13 @@ async def auto_react_to_channel_post(client, message: Message):
                 selected_react
             )
         except Exception as e:
-            print(f"Client failed to react to channel post: {str(e)}")
+            print(f"ᴄʟɪᴇɴᴛ ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ: {str(e)}")
 
         # Then, attempt to react with the assistant if available
         assistant = await get_assistant(message.chat.id)
         if assistant:
             assistant_reaction = random.choice(allowed_reactions)
-            print(f"Selected reaction for assistant: {assistant_reaction}")
+            print(f"sᴇʟᴇᴄᴛᴇᴅ ʀᴇᴀᴄᴛɪᴏɴ ғᴏʀ ᴀssɪsᴛᴀɴᴛ: {assistant_reaction}")
             try:
                 await send_reaction_with_fallback(
                     assistant,
@@ -171,17 +171,17 @@ async def auto_react_to_channel_post(client, message: Message):
                     assistant_reaction
                 )
             except Exception as e:
-                print(f"Assistant failed to react to channel post: {str(e)}")
+                print(f"ᴀssɪsᴛᴀɴᴛ ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ: {str(e)}")
         
         await send_log(
-            f"Reacted to message with {selected_react}",
+            f"ʀᴇᴀᴄᴛᴇᴅ ᴛᴏ ᴍᴇssᴀɢᴇ ᴡɪᴛʜ {selected_react}",
             message.chat.id,
             message.chat.title,
             message.id
         )
     except Exception as e:
         await send_log(
-            f"Failed to react to channel post. Error: {str(e)}",
+            f"ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴀᴄᴛ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴘᴏsᴛ. ᴇʀʀᴏʀ: {str(e)}",
             message.chat.id,
             message.chat.title,
             message.id

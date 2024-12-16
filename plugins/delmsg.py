@@ -25,7 +25,7 @@ async def purge_user_func(_, message: Message):
         # Step 1: Userbot ko Admin banana
         userbot = await get_assistant(message.chat.id)
         if not userbot:
-            return await message.reply_text("Userbot assistant not found or unable to promote.")
+            return await message.reply_text("ᴜsᴇʀʙᴏᴛ ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ғᴏᴜɴᴅ ᴏʀ ᴜɴᴀʙʟᴇ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ.")
 
         try:
             # Admin privileges dena, specifically 'delete_messages' permission
@@ -35,17 +35,17 @@ async def purge_user_func(_, message: Message):
                 privileges=ChatPrivileges(
                     can_manage_chat=True))
             
-            ok = await message.reply_text("Userbot has been promoted to admin with delete messages permission.")
+            ok = await message.reply_text("ᴜsᴇʀʙᴏᴛ ʜᴀs ʙᴇᴇɴ ᴘʀᴏᴍᴏᴛᴇᴅ ᴛᴏ ᴀᴅᴍɪɴ ᴡɪᴛʜ ᴅᴇʟᴇᴛᴇ ᴍᴇssᴀɢᴇs ᴘᴇʀᴍɪssɪᴏɴ.")
             await ok.delete()
         except Exception as e:
-            return await message.reply_text(f"Failed to promote userbot: {str(e)}")
+            return await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀʙᴏᴛ: {str(e)}")
         
         # Step 2: User identify karna (reply se, mention se, ya userID se)
         if message.reply_to_message:
             user = message.reply_to_message.from_user.id
         else:
             if len(message.command) < 2:
-                return await message.reply_text("Please reply to a user or provide a username/user ID.")
+                return await message.reply_text("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴜsᴇʀɴᴀᴍᴇ/ᴜsᴇʀ ɪᴅ.")
 
             user_input = message.command[1]
             if user_input.isdigit():  # User ID diya gaya hai
@@ -72,7 +72,7 @@ async def purge_user_func(_, message: Message):
                         revoke=True,  # For both sides
                     )
                 except Exception as e:
-                    return await message.reply_text(f"Failed to delete messages: {str(e)}")
+                    return await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴍᴇssᴀɢᴇs: {str(e)}")
                 message_ids = []
 
         # Agar kuch messages bache hain to unko bhi delete karein
@@ -84,12 +84,12 @@ async def purge_user_func(_, message: Message):
                     revoke=True,
                 )
             except Exception as e:
-                return await message.reply_text(f"Failed to delete remaining messages: {str(e)}")
+                return await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ʀᴇᴍᴀɪɴɪɴɢ ᴍᴇssᴀɢᴇs: {str(e)}")
 
-        await message.reply_text(f"All messages from user {user} have been deleted.")
+        await message.reply_text(f"ᴀʟʟ ᴍᴇssᴀɢᴇs ғʀᴏᴍ ᴜsᴇʀ {user} ʜᴀᴠᴇ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ.")
     
     except Exception as e:
-        await message.reply_text(f"An unexpected error occurred: {str(e)}")
+        await message.reply_text(f"ᴀɴ ᴜɴᴇxᴘᴇᴄᴛᴇᴅ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {str(e)}")
 @app.on_message(filters.command(["deleteallgroup", "deleteallgroupmsg", "delallgroupmessage", "cleangroupmsg"]) & filters.group)
 async def delete_all_group_messages(client, message):
     try:

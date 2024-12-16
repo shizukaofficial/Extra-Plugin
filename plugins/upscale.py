@@ -24,11 +24,11 @@ async def upscale_image(client, message):
     chat_id = message.chat.id
     replied = message.reply_to_message
     if not replied:
-        return await message.reply_text("Please Reply To An Image ...")
+        return await message.reply_text("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀɴ ɪᴍᴀɢᴇ ...")
     if not replied.photo:
-        return await message.reply_text("Please Reply To An Image ...")
+        return await message.reply_text("ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀɴ ɪᴍᴀɢᴇ ...")
 
-    aux = await message.reply_text("Please Wait ...")
+    aux = await message.reply_text("ɪɴᴄʀᴇᴀsɪɴɢ ǫᴜᴀʟɪᴛʏ ᴏғ ɪᴍᴀɢᴇ...")
     image = await replied.download()
 
     try:
@@ -50,10 +50,10 @@ async def upscale_image(client, message):
             await aux.delete()
             return await message.reply_document(downloaded_image)
         else:
-            await aux.edit_text("Failed to get the output image link.")
+            await aux.edit_text("ғᴀɪʟᴇᴅ ᴛᴏ ɢᴇᴛ ᴛʜᴇ ᴏᴜᴛᴘᴜᴛ ɪᴍᴀɢᴇ ʟɪɴᴋ.")
     except requests.exceptions.RequestException as e:
-        await aux.edit_text(f"Request failed: {str(e)}")
+        await aux.edit_text(f"ʀᴇǫᴜᴇsᴛ ғᴀɪʟᴇᴅ: {str(e)}")
     except Exception as e:
-        await aux.edit_text(f"An unexpected error occurred: {str(e)}")
+        await aux.edit_text(f"ᴀɴ ᴜɴᴇxᴘᴇᴄᴛᴇᴅ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {str(e)}")
         
 

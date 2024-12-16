@@ -25,10 +25,10 @@ async def rpromote(client, message: Message):
             group_id = int(group_id)
 
     except (ValueError, IndexError):
-        return await message.reply_text("Please provide a valid Group ID, Group username, or ɢʀᴏᴜᴘ.")
+        return await message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ, ɢʀᴏᴜᴘ ᴜsᴇʀɴᴀᴍᴇ, ᴏʀ ɢʀᴏᴜᴘ.")
 
     CHAMPU = await message.reply_text(
-        f"Attempting to promote {message.from_user.mention} in the group <code>{group_id}</code>..."
+        f"ᴀᴛᴛᴇᴍᴘᴛɪɴɢ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ {message.from_user.mention} ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ <code>{group_id}</code>..."
     )
 
     try:
@@ -54,7 +54,7 @@ async def rpromote(client, message: Message):
             await app.set_administrator_title(group_id, message.from_user.id, admin_tag)
             invite_link = await group.export_invite_link()
             await CHAMPU.edit(
-                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code> with the title: {admin_tag}",
+                f"sᴜᴄᴄᴇssғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ {message.from_user.mention} ᴛᴏ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ <code>{group_id}</code> ᴡɪᴛʜ ᴛʜᴇ ᴛɪᴛʟᴇ: {admin_tag}",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("ɢʀᴏᴜᴘ", url=invite_link)]
                 ])
@@ -62,18 +62,18 @@ async def rpromote(client, message: Message):
         else:
             invite_link = await group.export_invite_link()
             await CHAMPU.edit(
-                f"Successfully promoted {message.from_user.mention} to admin in the group <code>{group_id}</code>.",
+                f"sᴜᴄᴄᴇssғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ {message.from_user.mention} ᴛᴏ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ <code>{group_id}</code>.",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("ɢʀᴏᴜᴘ", url=invite_link)]
                 ])
             )
 
     except ChatAdminRequired:
-        await CHAMPU.edit("Error: I need to be an admin to promote you.")
+        await CHAMPU.edit("ᴇʀʀᴏʀ: ɪ ɴᴇᴇᴅ ᴛᴏ ʙᴇ ᴀɴ ᴀᴅᴍɪɴ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ʏᴏᴜ.")
     except UserNotParticipant:
-        await CHAMPU.edit("Error: You must be a member of the group to be promoted.")
+        await CHAMPU.edit("ᴇʀʀᴏʀ: ʏᴏᴜ ᴍᴜsᴛ ʙᴇ ᴀ ᴍᴇᴍʙᴇʀ ᴏғ ᴛʜᴇ ɢʀᴏᴜᴘ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
     except RPCError as e:
-        await CHAMPU.edit(f"An error occurred: {str(e)}")
+        await CHAMPU.edit(f"ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {str(e)}")
 
 @app.on_message(filters.command("demoteme") & filters.user(OWNER_ID))
 async def rdemote(client, message: Message):
@@ -90,10 +90,10 @@ async def rdemote(client, message: Message):
             group_id = int(group_id)
 
     except (ValueError, IndexError):
-        return await message.reply_text("Please provide a valid Group ID, Group username, or ɢʀᴏᴜᴘ.")
+        return await message.reply_text("ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ, ɢʀᴏᴜᴘ ᴜsᴇʀɴᴀᴍᴇ, ᴏʀ ɢʀᴏᴜᴘ.")
 
     CHAMPU = await message.reply_text(
-        f"Attempting to demote {message.from_user.mention} in the group <code>{group_id}</code>..."
+        f"ᴀᴛᴛᴇᴍᴘᴛɪɴɢ ᴛᴏ ᴅᴇᴍᴏᴛᴇ {message.from_user.mention} ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ <code>{group_id}</code>..."
     )
 
     try:
@@ -113,9 +113,9 @@ async def rdemote(client, message: Message):
             ),
         )
         
-        await CHAMPU.edit(f"Successfully demoted {message.from_user.mention} in the group <code>{group_id}</code>.")
+        await CHAMPU.edit(f"sᴜᴄᴄᴇssғᴜʟʟʏ ᴅᴇᴍᴏᴛᴇᴅ {message.from_user.mention} ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ <code>{group_id}</code>.")
     
     except ChatAdminRequired:
-        await CHAMPU.edit("Error: I need to be an admin to demote you.")
+        await CHAMPU.edit("ᴇʀʀᴏʀ: ɪ ɴᴇᴇᴅ ᴛᴏ ʙᴇ ᴀɴ ᴀᴅᴍɪɴ ᴛᴏ ᴅᴇᴍᴏᴛᴇ ʏᴏᴜ.")
     except RPCError as e:
-        await CHAMPU.edit(f"An error occurred: {str(e)}")
+        await CHAMPU.edit(f"ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {str(e)}")

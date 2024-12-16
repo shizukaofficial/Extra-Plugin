@@ -15,7 +15,7 @@ def get_pypi_info(package_name):
         else:
             return None
     except Exception as e:
-        print(f"Error fetching PyPI information: {e}")
+        print(f"ᴇʀʀᴏʀ ғᴇᴛᴄʜɪɴɢ ᴘʏᴘɪ ɪɴғᴏʀᴍᴀᴛɪᴏɴ: {e}")
         return None
 
 
@@ -40,19 +40,19 @@ async def pypi_info_command(client, message):
             await message.reply_text(info_message, reply_markup=close_markup)
         else:
             await message.reply_text(
-                f"Package '{package_name}' not found \n please dont try again later ."
+                f"ᴘᴀᴄᴋᴀɢᴇ '{package_name}' ɴᴏᴛ ғᴏᴜɴᴅ \n ᴘʟᴇᴀsᴇ ᴅᴏɴᴛ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ ."
             )
 
     except IndexError:
         await message.reply_text(
-            "Please provide a package name after the /pypi command."
+            "ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴘᴀᴄᴋᴀɢᴇ ɴᴀᴍᴇ ᴀғᴛᴇʀ ᴛʜᴇ /pypi ᴄᴏᴍᴍᴀɴᴅ."
         )
 
 
 __MODULE__ = "Pʏᴘɪ"
 __HELP__ = """
 **ᴄᴏᴍᴍᴀɴᴅs:**
-• /pypi <package_name>`: Get details about a specified Python package from PyPI.
+• /pypi <package_name>`: ɢᴇᴛ ᴅᴇᴛᴀɪʟs ᴀʙᴏᴜᴛ ᴀ sᴘᴇᴄɪғɪᴇᴅ ᴘʏᴛʜᴏɴ ᴘᴀᴄᴋᴀɢᴇ ғʀᴏᴍ ᴘʏᴘɪ.
 
 **ɪɴғᴏ:**
 ᴛʜɪs ᴍᴏᴅᴜʟᴇ ᴀʟʟᴏᴡs ᴜsᴇʀs ᴛᴏ ғᴇᴛᴄʜ ɪɴғᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴘʏᴛʜᴏɴ ᴘᴀᴄᴋᴀɢᴇs ғʀᴏᴍ ᴘʏᴘɪ, ɪɴᴄʟᴜᴅɪɴɢ ᴛʜᴇ ᴘᴀᴄᴋᴀɢᴇ ɴᴀᴍᴇ, ʟᴀᴛᴇsᴛ ᴠᴇʀsɪᴏɴ, ᴅᴇsᴄʀɪᴘᴛɪᴏɴ, ᴀɴᴅ ᴘʀᴏᴊᴇᴄᴛ ᴜʀʟ.

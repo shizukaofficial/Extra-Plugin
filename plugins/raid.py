@@ -14,7 +14,7 @@ def spam_command(client, message):
         # Delete the user's command text
         message.delete()
     except pyrogram.errors.exceptions.FloodWait as e:
-        print(f"Error deleting message: {e}")
+        print(f"ᴇʀʀᴏʀ ᴅᴇʟᴇᴛɪɴɢ ᴍᴇssᴀɢᴇ: {e}")
         pass  # Ignore the deletion error and continue
 
     # Check if the message is a reply and has text
@@ -40,10 +40,10 @@ def spam_command(client, message):
         user_to_tag = message.reply_to_message.from_user.mention()
 
         for _ in range(5):  # You can adjust the number of spam messages
-            message.reply_to_message.reply_text(f"{user_to_tag} **SPAM!**")
+            message.reply_to_message.reply_text(f"{user_to_tag} **sᴘᴀᴍ!**")
             time.sleep(0.2)  # Add a delay between spam messages
     else:
-        message.reply_text("Reply to a message and use the /raid command to spam.")
+        message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴀɴᴅ ᴜsᴇ ᴛʜᴇ /raid ᴄᴏᴍᴍᴀɴᴅ ᴛᴏ sᴘᴀᴍ.")
 
 
 __MODULE__ = "Rᴀɪᴅ"

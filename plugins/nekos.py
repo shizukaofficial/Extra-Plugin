@@ -24,7 +24,7 @@ async def tickle(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("tickle"),
-                caption=f"{message.from_user.mention} tickled {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ᴛɪᴄᴋʟᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("tickle"))
@@ -37,7 +37,7 @@ async def feed(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("feed"),
-                caption=f"{message.from_user.mention} fed {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ғᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("feed"))
@@ -64,7 +64,20 @@ async def slap(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("slap"),
-                caption=f"{message.from_user.mention} slapped {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} sʟᴀᴘᴘᴇᴅ {message.reply_to_message.from_user.mention}",
+            )
+        else:
+            await message.reply_video(nekos.img("slap"))
+    except Exception as e:
+        await message.reply_text(f"Error: {e}")
+
+@app.on_message(filters.command("slap"))
+async def slap(client, message):
+    try:
+        if message.reply_to_message:
+            await message.reply_video(
+                nekos.img("slap"),
+                caption=f"{message.from_user.mention} sʟᴀᴘᴘᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("slap"))
@@ -91,7 +104,7 @@ async def pat(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("pat"),
-                caption=f"{message.from_user.mention} patted {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ᴘᴀᴛᴛᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("pat"))
@@ -105,7 +118,7 @@ async def kiss(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("kiss"),
-                caption=f"{message.from_user.mention} kissed {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ᴋɪssᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("kiss"))
@@ -125,7 +138,7 @@ async def spank(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("spank"),
-                caption=f"{message.from_user.mention} spanked {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} sᴘᴀɴᴋᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("spank"))
@@ -138,7 +151,7 @@ async def cuddle(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("cuddle"),
-                caption=f"{message.from_user.mention} cuddled {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ᴄᴜᴅᴅʟᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("cuddle"))
@@ -158,7 +171,7 @@ async def hug(client, message):
         if message.reply_to_message:
             await message.reply_video(
                 nekos.img("hug"),
-                caption=f"{message.from_user.mention} hugged {message.reply_to_message.from_user.mention}",
+                caption=f"{message.from_user.mention} ʜᴜɢɢᴇᴅ {message.reply_to_message.from_user.mention}",
             )
         else:
             await message.reply_video(nekos.img("hug"))

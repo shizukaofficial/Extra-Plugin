@@ -13,14 +13,14 @@ def get_truth(client, message):
         response = requests.get(truth_api_url)
         if response.status_code == 200:
             truth_question = response.json()["question"]
-            message.reply_text(f"Truth question:\n\n{truth_question}")
+            message.reply_text(f"ᴛʀᴜᴛʜ ǫᴜᴇsᴛɪᴏɴ:\n\n{truth_question}")
         else:
             message.reply_text(
-                "Failed to fetch a truth question. Please try again later."
+                "ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ ᴀ ᴛʀᴜᴛʜ ǫᴜᴇsᴛɪᴏɴ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
             )
     except Exception as e:
         message.reply_text(
-            "An error occurred while fetching a truth question. Please try again later."
+            "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ғᴇᴛᴄʜɪɴɢ ᴀ ᴛʀᴜᴛʜ ǫᴜᴇsᴛɪᴏɴ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
         )
 
 
@@ -30,14 +30,14 @@ def get_dare(client, message):
         response = requests.get(dare_api_url)
         if response.status_code == 200:
             dare_question = response.json()["question"]
-            message.reply_text(f"Dare question:\n\n{dare_question}")
+            message.reply_text(f"ᴅᴀʀᴇ ǫᴜᴇsᴛɪᴏɴ:\n\n{dare_question}")
         else:
             message.reply_text(
-                "Failed to fetch a dare question. Please try again later."
+                "ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ ᴀ ᴅᴀʀᴇ ǫᴜᴇsᴛɪᴏɴ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
             )
     except Exception as e:
         message.reply_text(
-            "An error occurred while fetching a dare question. Please try again later."
+            "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ғᴇᴛᴄʜɪɴɢ ᴀ ᴅᴀʀᴇ ǫᴜᴇsᴛɪᴏɴ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
         )
 
 

@@ -57,7 +57,7 @@ async def save_notee(_, message):
         if len(message.command) < 2:
             await eor(
                 message,
-                text="**Usage:**\nReply to a message with /save [NOTE_NAME] to save a new note.",
+                text="**ᴜsᴀɢᴇ:**\nʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴡɪᴛʜ /save [NOTE_NAME] ᴛᴏ sᴀᴠᴇ ᴀ ɴᴇᴡ ɴᴏᴛᴇ.",
             )
         else:
             replied_message = message.reply_to_message
@@ -66,7 +66,7 @@ async def save_notee(_, message):
             data, name = await get_data_and_name(replied_message, message)
             if data == "error":
                 return await message.reply_text(
-                    "**Usage:**\n__/save [NOTE_NAME] [CONTENT]__\n`-----------OR-----------`\nReply to a message with.\n/save [NOTE_NAME]"
+                    "**ᴜsᴀɢᴇ:**\n__/save [NOTE_NAME] [CONTENT]__\n`-----------OR-----------`\nʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴡɪᴛʜ.\n/save [NOTE_NAME]"
                 )
             if replied_message.text:
                 _type = "text"
@@ -106,7 +106,7 @@ async def save_notee(_, message):
                 data = await check_format(ikb, data)
                 if not data:
                     return await message.reply_text(
-                        "**Wrong formatting, check the help section.**"
+                        "**ᴡʀᴏɴɢ ғᴏʀᴍᴀᴛᴛɪɴɢ, ᴄʜᴇᴄᴋ ᴛʜᴇ ʜᴇʟᴘ sᴇᴄᴛɪᴏɴ.**"
                     )
             note = {
                 "type": _type,
@@ -115,10 +115,10 @@ async def save_notee(_, message):
             }
             chat_id = message.chat.id
             await save_note(chat_id, name, note)
-            await eor(message, text=f"__**Saved note {name}.**__")
+            await eor(message, text=f"__**sᴀᴠᴇᴅ ɴᴏᴛᴇ {name}.**__")
     except UnboundLocalError:
         return await message.reply_text(
-            "**Replied message is inaccessible.\n`Forward the message and try again`**"
+            "**ʀᴇᴘʟɪᴇᴅ ᴍᴇssᴀɢᴇ ɪs ɪɴᴀᴄᴄᴇssɪʙʟᴇ.\n`ғᴏʀᴡᴀʀᴅ ᴛʜᴇ ᴍᴇssᴀɢᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ`**"
         )
 
 
@@ -130,9 +130,9 @@ async def get_notes(_, message):
     _notes = await get_note_names(chat_id)
 
     if not _notes:
-        return await eor(message, text="**No notes in this chat.**")
+        return await eor(message, text="**ɴᴏ ɴᴏᴛᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.**")
     _notes.sort()
-    msg = f"List of notes in {message.chat.title}\n"
+    msg = f"ʟɪsᴛ ᴏғ ɴᴏᴛᴇs ɪɴ {message.chat.title}\n"
     for note in _notes:
         msg += f"**-** `{note}`\n"
     await eor(message, text=msg)
@@ -142,7 +142,7 @@ async def get_notes(_, message):
 @capture_err
 async def get_one_note(_, message):
     if len(message.text.split()) < 2:
-        return await eor(message, text="Invalid arguments")
+        return await eor(message, text="ɪɴᴠᴀʟɪᴅ ᴀʀɢᴜᴍᴇɴᴛs")
     from_user = message.from_user if message.from_user else message.sender_chat
     chat_id = message.chat.id
     name = message.text.split(None, 1)[1]
@@ -325,18 +325,18 @@ async def get_reply(message, type, file_id, data, keyb):
 @adminsOnly("can_change_info")
 async def del_note(_, message):
     if len(message.command) < 2:
-        return await eor(message, text="**Usage**\n__/delete [NOTE_NAME]__")
+        return await eor(message, text="**ᴜsᴀɢᴇ**\n__/delete [NOTE_NAME]__")
     name = message.text.split(None, 1)[1].strip()
     if not name:
-        return await eor(message, text="**Usage**\n__/delete [NOTE_NAME]__")
+        return await eor(message, text="**ᴜsᴀɢᴇ**\n__/delete [NOTE_NAME]__")
 
     chat_id = message.chat.id
 
     deleted = await delete_note(chat_id, name)
     if deleted:
-        await eor(message, text=f"**Deleted note {name} successfully.**")
+        await eor(message, text=f"**ᴅᴇʟᴇᴛᴇᴅ ɴᴏᴛᴇ {name} sᴜᴄᴄᴇssғᴜʟʟʏ.**")
     else:
-        await eor(message, text="**No such note.**")
+        await eor(message, text="**ɴᴏ sᴜᴄʜ ɴᴏᴛᴇ.**")
 
 
 @app.on_message(filters.command("deleteall") & filters.group & ~BANNED_USERS)
@@ -344,18 +344,18 @@ async def del_note(_, message):
 async def delete_all(_, message):
     _notes = await get_note_names(message.chat.id)
     if not _notes:
-        return await message.reply_text("**No notes in this chat.**")
+        return await message.reply_text("**ɴᴏ ɴᴏᴛᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.**")
     else:
         keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("YES, DO IT", callback_data="delete_yes"),
-                    InlineKeyboardButton("Cancel", callback_data="delete_no"),
+                    InlineKeyboardButton("ʏᴇs, ᴅᴏ ɪᴛ", callback_data="delete_yes"),
+                    InlineKeyboardButton("ᴄᴀɴᴄᴇʟ", callback_data="delete_no"),
                 ]
             ]
         )
         await message.reply_text(
-            "**Are you sure you want to delete all the notes in this chat forever ?.**",
+            "**ᴀʀᴇ ʏᴏᴜ sᴜʀᴇ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴀʟʟ ᴛʜᴇ ɴᴏᴛᴇs ɪɴ ᴛʜɪs ᴄʜᴀᴛ ғᴏʀᴇᴠᴇʀ ?.**",
             reply_markup=keyboard,
         )
 
@@ -368,7 +368,7 @@ async def delete_all_cb(_, cb):
     permission = "can_change_info"
     if permission not in permissions:
         return await cb.answer(
-            f"You don't have the required permission.\n Permission: {permission}",
+            f"ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴛʜᴇ ʀᴇǫᴜɪʀᴇᴅ ᴘᴇʀᴍɪssɪᴏɴ.\n ᴘᴇʀᴍɪssɪᴏɴ: {permission}",
             show_alert=True,
         )
     input = cb.data.split("_", 1)[1]
@@ -376,7 +376,7 @@ async def delete_all_cb(_, cb):
         stoped_all = await deleteall_notes(chat_id)
         if stoped_all:
             return await cb.message.edit(
-                "**Successfully deleted all notes on this chat.**"
+                "**sᴜᴄᴄᴇssғᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ᴀʟʟ ɴᴏᴛᴇs ᴏɴ ᴛʜɪs ᴄʜᴀᴛ.**"
             )
     if input == "no":
         await cb.message.reply_to_message.delete()
