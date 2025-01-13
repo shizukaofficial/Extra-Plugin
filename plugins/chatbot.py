@@ -3,7 +3,8 @@ import asyncio
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from ChampuMusic import app
-
+from ChampuMusic.utils.database import get_assistant
+from pyrogram.types import ChatMemberUpdated
 
 # Approved group and owner configuration
 APPROVED_GROUP_IDS = [-1001961655253]  # Replace with your approved group ID(s)
@@ -25,7 +26,7 @@ RESPONSES = [
 SESSION_FILE_PATH = "/data/user/0/ru.iiec.pydroid3/files/userbot_session.session"
 
 # Function to reply to messages
-@app.on_message(filters.text)
+@Client.on_message(filters.text)
 async def reply_to_messages(client, message):
     # Ensure the bot replies only in approved groups
     if message.chat.id not in APPROVED_GROUP_IDS:
@@ -51,7 +52,7 @@ async def reply_to_messages(client, message):
 
 
 # Command to check bot status (owner only)
-@app.on_message(filters.command("astatus"))
+@Client.on_message(filters.command("astatus"))
 async def check_status(client, message):
     if message.chat.id not in APPROVED_GROUP_IDS or message.from_user.id != OWNER_ID:
         return
@@ -60,7 +61,7 @@ async def check_status(client, message):
 
 
 # Command to stop the bot (owner only)
-@app.on_message(filters.command("astop"))
+@Client.on_message(filters.command("astop"))
 async def stop_bot(client, message):
     if message.chat.id not in APPROVED_GROUP_IDS or message.from_user.id != OWNER_ID:
         return
