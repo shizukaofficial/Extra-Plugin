@@ -60,6 +60,28 @@ async def set_group_approval(chat_id, state):
     else:
         group_db.delete_one({"chat_id": chat_id})
 
+# Command to approve/disapprove groups
+@app.on_message(filters.command("approvegroup") & ~filters.private)
+async def approve_group(_, message):
+    """Approve or disapprove a group."""
+    if message.from_user.id != OWNER_ID:
+        return await message.reply("❌ Only the owner can manage group approvals!")
+
+    if len(message.command) != 2:
+        return await message.reply("⚙️ Usage: `/approvegroup [on|off]`")
+
+    state = message.command[1].lower()
+    if state not in ["on", "off"]:
+        return await message.reply("❌ Invalid state! Use 'on' or 'off'.")
+
+    chat_id = message.chat.id
+    if state == "on":
+        await set_group_approval(chat_id, True)
+        await message.reply(f"✅ Group `{message.chat.title}` approved for bot interaction!")
+    else:
+        await set_group_approval(chat_id, False)
+        await message.reply(f"🚫 Group `{message.chat.title}` disapproved!")
+
 # Updated error handling in the reply_to_messages function
 @app.on_message(filters.text & ~filters.private)
 async def reply_to_messages(_, message):
