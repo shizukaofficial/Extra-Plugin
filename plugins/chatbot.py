@@ -49,8 +49,8 @@ async def set_group_approval(chat_id, state):
         group_db.delete_one({"chat_id": chat_id})
 
 # Handlers
-@Client.on_message(filters.text & ~filters.edited)
-async def reply_to_messages(client, message):
+@Client.on_message(filters.text & ~filters.edited_message)
+async def handle_text_message(client, message):
     """Reply to messages in approved groups."""
     chat_id = message.chat.id
 
