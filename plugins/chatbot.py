@@ -2,15 +2,10 @@ import random
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
-from ChampuMusic import app
-from ChampuMusic.utils.database import get_assistant
-from pyrogram.types import ChatMemberUpdated
 
-# Approved group and owner configuration
-APPROVED_GROUP_IDS = [-1001961655253]  # Replace with your approved group ID(s)
-OWNER_ID = 6399386263  # Replace with your Telegram user ID
+APPROVED_GROUP_IDS = [-1001961655253]
+OWNER_ID = 6399386263 
 
-# Sample responses for the bot
 RESPONSES = [
     "Hii! Kaise ho? 😊",
     "Main thik hoon, tum kaise ho? 🌸",
@@ -22,50 +17,39 @@ RESPONSES = [
     "Mujhe yeh pasand aaya! 🤗"
 ]
 
-# Path to save the session file (using a shorter path)
-SESSION_FILE_PATH = "/data/user/0/ru.iiec.pydroid3/files/userbot_session.session"
 
-# Function to reply to messages
 @Client.on_message(filters.text)
 async def reply_to_messages(client, message):
-    # Ensure the bot replies only in approved groups
     if message.chat.id not in APPROVED_GROUP_IDS:
         return
-
-    # Ignore messages sent by the bot itself
-    if message.from_user.is_bot:
+    if message.from_user and message.from_user.is_self:
         return
 
-    # Generate a random response
     response = random.choice(RESPONSES)
 
     try:
-        # Add a delay to avoid hitting Telegram rate limits
         await asyncio.sleep(2)
         await message.reply(response)
         print(f"Replied to {message.from_user.id} with: {response}")
     except FloodWait as e:
         print(f"Flood wait error: Must wait {e.x} seconds before sending more messages.")
-        await asyncio.sleep(e.x)  # Wait for the penalty duration
+        await asyncio.sleep(e.x) 
     except Exception as e:
         print(f"Failed to reply: {e}")
 
 
-# Command to check bot status (owner only)
-@Client.on_message(filters.command("astatus"))
+@Client.on_message(filters.command(["status"], prefixes=["."]))
 async def check_status(client, message):
     if message.chat.id not in APPROVED_GROUP_IDS or message.from_user.id != OWNER_ID:
         return
 
-    await message.reply("👋 Userbot is active and running smoothly!")
+    await message.reply("👋 Assistant is active and running smoothly!")
 
 
-# Command to stop the bot (owner only)
-@Client.on_message(filters.command("astop"))
-async def stop_bot(client, message):
+@Client.on_message(filters.command("astop", prefixes=["."]))
+async def stop_assistant(client, message):
     if message.chat.id not in APPROVED_GROUP_IDS or message.from_user.id != OWNER_ID:
         return
 
-    await message.reply("🚫 Userbot is shutting down!")
-    await app.stop()
-
+    await message.reply("🚫 Assistant is shutting down!")
+    await assistant.stop()
