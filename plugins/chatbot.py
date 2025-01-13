@@ -11,7 +11,8 @@ from config import MONGO_DB_URI
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
-
+# Define the log group chat ID
+LOG_GROUP_ID = -1001423108989 # Replace with your actual log group chat ID
 # Constants
 OWNER_ID = 6399386263  # Replace with the actual owner ID
 SPAM_THRESHOLD = 3
@@ -37,6 +38,15 @@ RESPONSES = [
     "Mujhe yeh pasand aaya! 🤗"
 ]
 
+
+# Function to send logs to the log group
+async def send_log_to_group(chat_id, message):
+    try:
+        userbot = await get_assistant(chat_id)
+        await userbot.send_message(LOG_GROUP_ID, message)
+    except Exception as e:
+        LOGGER.error(f"Failed to send log to log group: {e}")
+
 # Helper Functions
 async def is_group_approved(chat_id):
     """Check if a group is approved."""
@@ -50,7 +60,7 @@ async def set_group_approval(chat_id, state):
     else:
         group_db.delete_one({"chat_id": chat_id})
 
-# Respond to text messages
+# Updated error handling in the reply_to_messages function
 @app.on_message(filters.text & ~filters.private)
 async def reply_to_messages(_, message):
     """Reply to messages in approved groups."""
@@ -73,7 +83,9 @@ async def reply_to_messages(_, message):
             try:
                 await message.reply("⚠️ Please avoid spamming. Try again after a while.")
             except Exception as e:
-                LOGGER.error(f"Failed to send spam warning: {e}")
+                error_message = f"Spam warning failed: {e}"
+                LOGGER.error(error_message)
+                await send_log_to_group(chat_id, error_message)
             return
     else:
         user_command_count[user_id] = 1
@@ -86,8 +98,11 @@ async def reply_to_messages(_, message):
         await asyncio.sleep(random.randint(15, 20))  # Delay of 15–20 seconds
         userbot = await get_assistant(chat_id)
         await userbot.send_message(chat_id, response)
+        LOGGER.info(f"Replied to {user_id} with: {response}")
     except Exception as e:
-        LOGGER.error(f"Error in replying: {e}")
+        error_message = f"Error in replying: {e}"
+        LOGGER.error(error_message)
+        await send_log_to_group(chat_id, error_message)
 
 
 
