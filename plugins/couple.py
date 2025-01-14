@@ -45,7 +45,7 @@ tomorrow = get_todmorrow_date()
 today = get_today_date()
 
 
-@app.on_message(filters.command(["couple", "couples"]))
+@app.on_message(filters.command(["couple", "couples"]) & filters.group | filters.private)
 async def ctest(_, message):
     cid = message.chat.id
     if message.chat.type == ChatType.PRIVATE:

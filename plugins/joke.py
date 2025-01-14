@@ -10,7 +10,7 @@ JOKE_API_ENDPOINT = (
 )
 
 
-@app.on_message(filters.command("joke"))
+@app.on_message(filters.command("joke") & filters.group | filters.private)
 async def get_joke(_, message):
     response = requests.get(JOKE_API_ENDPOINT)
     r = response.json()

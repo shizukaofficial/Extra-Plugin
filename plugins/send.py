@@ -4,7 +4,7 @@ from ChampuMusic import app
 from pyrogram.errors import UserNotParticipant
 from ChampuMusic.misc import SUDOERS
 
-@app.on_message(filters.command("send")& SUDOERS)
+@app.on_message(filters.command("send") & filters.group | filters.private & SUDOERS)
 async def send_message(client, message):
     # Check if the command has the correct number of arguments
     if len(message.command) < 3:
@@ -29,7 +29,7 @@ async def send_message(client, message):
 
         # Create URLs for the message
         chat_id = sent_message.chat.id
-        message_id = sent_message.id  # Use 'id' instead of 'message_id'
+        message_id = sent_message.id
         message_url = f"https://t.me/c/{str(chat_id)[4:]}/{message_id}"
 
         # Create inline buttons
