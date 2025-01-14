@@ -10,7 +10,7 @@ from ChampuMusic.core.userbot import assistants
 from ChampuMusic.utils.database import get_client
 
 
-@app.on_message(filters.command(["sg", "History"]) & filters.group | filters.private)
+@app.on_message(filters.command(["sg", "History"]))
 async def sg(client: Client, message: Message):
 
     if len(message.text.split()) < 2 and not message.reply_to_message:
