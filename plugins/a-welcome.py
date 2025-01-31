@@ -3,7 +3,7 @@ import asyncio
 import time
 from logging import getLogger
 from time import time
-from pyrogram import enums, filters
+from pyrogram import enums, filters, client
 from pyrogram.types import ChatMemberUpdated, Message
 
 from ChampuMusic import app
