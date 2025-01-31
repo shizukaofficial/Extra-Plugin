@@ -3,9 +3,8 @@ import asyncio
 import time
 from logging import getLogger
 from time import time
-
 from pyrogram import enums, filters
-from pyrogram.types import ChatMemberUpdated
+from pyrogram.types import ChatMemberUpdated, Message
 
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
@@ -50,12 +49,20 @@ async def set_awelcome_status(chat_id, state):
         {"$set": {"welcome": state}},
         upsert=True
     )
+async def is_user_admin(client, chat_id, user_id):
+    member = await client.get_chat_member(chat_id, user_id)
+    return member.status in [enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER]
 
 # Command to toggle welcome message
 @app.on_message(filters.command("awelcome") & ~filters.private)
-async def auto_state(_, message):
+async def awelcome_command(client, message: Message):
+    chat_id = message.chat.id
     user_id = message.from_user.id
     current_time = time()
+    
+    if not await is_user_admin(client, chat_id, user_id):
+        await message.reply("ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴅᴏᴇsɴ'ᴛ ᴡᴏʀᴋ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴛᴏ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴏғ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.")
+        return
 
     last_message_time = user_last_message_time.get(user_id, 0)
     if current_time - last_message_time < SPAM_WINDOW_SECONDS:
