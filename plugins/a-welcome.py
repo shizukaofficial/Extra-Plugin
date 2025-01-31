@@ -114,9 +114,9 @@ async def awelcome_command(client, message: Message):
     else:
         await message.reply("**sᴏʀʀʏ ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴇɴᴀʙʟᴇ ᴀssɪsᴛᴀɴᴛ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ!**")
 
-# Auto-welcome message for new members
+# Auto-welcome message for new membersfrom pyrogram import Client, filters
 @app.on_chat_member_updated(filters.group, group=5)
-async def greet_new_members(_, member: ChatMemberUpdated, message: Message):
+async def greet_new_members(client: Client, member: ChatMemberUpdated):
     userbot = await get_assistant(member.chat.id)
     try:
         chat_id = member.chat.id
@@ -127,7 +127,7 @@ async def greet_new_members(_, member: ChatMemberUpdated, message: Message):
         user = member.new_chat_member.user
 
         if not await is_assistant_admin(client, chat_id):
-            await message.reply("ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴅᴏᴇsɴ'ᴛ ᴡᴏʀᴋ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴛᴏ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴏғ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.")
+            await client.send_message(chat_id, "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴅᴏᴇsɴ'ᴛ ᴡᴏʀᴋ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴛᴏ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴏғ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.")
             return
 
         if member.new_chat_member and not member.old_chat_member:
