@@ -13,9 +13,6 @@ from os import getenv
 from dotenv import load_dotenv
 load_dotenv()
 from ChampuMusic.logging import LOGGER
-BOT_TOKEN = getenv("BOT_TOKEN", "")
-MONGO_DB_URI = getenv("MONGO_DB_URI", "")
-STRING_SESSION = getenv("STRING_SESSION", "")
 
 @app.on_message(
     filters.command(["vcuser", "vcusers", "vcmember", "vcmembers"]) & filters.admin
