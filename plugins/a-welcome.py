@@ -37,6 +37,14 @@ class temp:
 awelcomedb = MongoClient(MONGO_DB_URI)
 astatus_db = awelcomedb.awelcome_status_db.status
 
+async def is_assistant_admin(client, chat_id):
+    assistant = await get_assistant(chat_id)
+    if not assistant:
+        return False
+    member = await client.get_chat_member(chat_id, assistant.id)
+    return member.status in [enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER]
+
+
 async def get_awelcome_status(chat_id):
     status = astatus_db.find_one({"chat_id": chat_id})
     if status:
@@ -108,7 +116,7 @@ async def awelcome_command(client, message: Message):
 
 # Auto-welcome message for new members
 @app.on_chat_member_updated(filters.group, group=5)
-async def greet_new_members(_, member: ChatMemberUpdated):
+async def greet_new_members(_, member: ChatMemberUpdated, message: Message):
     userbot = await get_assistant(member.chat.id)
     try:
         chat_id = member.chat.id
@@ -117,6 +125,10 @@ async def greet_new_members(_, member: ChatMemberUpdated):
             return
 
         user = member.new_chat_member.user
+
+        if not await is_assistant_admin(client, chat_id):
+            await message.reply("ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴅᴏᴇsɴ'ᴛ ᴡᴏʀᴋ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴛᴏ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴏғ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.")
+            return
 
         if member.new_chat_member and not member.old_chat_member:
             welcome_text = f"{user.mention} , {random.choice(champu)}"
