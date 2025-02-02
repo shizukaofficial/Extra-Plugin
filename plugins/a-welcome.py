@@ -5,6 +5,8 @@ from logging import getLogger
 from pyrogram import enums, filters, Client
 from pyrogram.types import ChatMemberUpdated, Message
 
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.errors import InviteRequestSent
 from ChampuMusic import app
 from ChampuMusic.utils.database import get_assistant
 from pymongo import MongoClient
@@ -38,34 +40,57 @@ async def get_awelcome_status(chat_id):
 async def set_awelcome_status(chat_id, state):
     astatus_db.update_one({"chat_id": chat_id}, {"$set": {"welcome": state}}, upsert=True)
 
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 @app.on_message(filters.command("awelcome") & filters.group)
 async def awelcome_command(client, message: Message):
     chat_id = message.chat.id
-
     assistant = await get_assistant(chat_id)
+
     if not assistant:
         return await message.reply_text("⚠️ **Assistant account not found. Please try again later.**")
 
-    # Check if assistant is in the group
+    # Check if assistant is already in the group
     try:
         member = await client.get_chat_member(chat_id, assistant.id)
         is_in_group = True
     except:
         is_in_group = False
 
+    # If the assistant is NOT in the group, create a button to add it
     if not is_in_group:
-        button = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("➕ Add Assistant", url=f"t.me/{assistant.id}?startgroup=true")]]
-        )
-        return await message.reply_text(
-            f"⚠ **Assistant account [{assistant.username}](t.me/{assistant.username}) is not in this group.**\n"
-            "➜ Please add the assistant to enable welcome messages.",
-            reply_markup=button
-        )
+        if assistant.username:
+            # Assistant has a username, use direct "Add Assistant" link
+            button = InlineKeyboardMarkup(
+                [[InlineKeyboardButton("➕ Add Assistant", url=f"t.me/{assistant.username}?startgroup=true")]]
+            )
+            return await message.reply_text(
+                f"⚠ **Assistant account [{assistant.username}](t.me/{assistant.username}) is not in this group.**\n"
+                "➜ Please add the assistant to enable welcome messages.",
+                reply_markup=button
+            )
+        else:
+            # Assistant has NO username → Use `userbotjoin` logic to create an invite link
+            try:
+                done = await message.reply_text("🔄 **Generating invite link...**")
+                invite_link = await client.create_chat_invite_link(chat_id, expire_date=None)
+                await asyncio.sleep(1)
 
-    # Check if assistant is admin
+                join_button = InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("➕ Add Assistant", url=invite_link.invite_link)]]
+                )
+                await done.edit_text(
+                    "⚠ **Assistant account is not in this group.**\n"
+                    "➜ Click the button below to invite it.",
+                    reply_markup=join_button
+                )
+                return
+            except Exception:
+                return await message.reply_text(
+                    "⚠ **I don't have permission to create an invite link.**\n"
+                    "➜ Please manually add the assistant to enable this feature."
+                )
+
+    # Check if assistant has admin privileges
     if not await is_assistant_admin(client, chat_id):
         assistant_mention = f"@{assistant.username}" if assistant.username else f"`{assistant.id}`"
         return await message.reply_text(
@@ -100,6 +125,7 @@ async def awelcome_command(client, message: Message):
 
     else:
         await message.reply_text(usage)
+
 
 
 @app.on_chat_member_updated(filters.group, group=5)
