@@ -57,7 +57,7 @@ async def awelcome_command(client, message: Message):
 
     if not is_in_group:
         button = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("➕ Add Assistant", url=f"t.me/{assistant.username}?startgroup=true")]]
+            [[InlineKeyboardButton("➕ Add Assistant", url=f"t.me/{assistant.id}?startgroup=true")]]
         )
         return await message.reply_text(
             f"⚠ **Assistant account [{assistant.username}](t.me/{assistant.username}) is not in this group.**\n"
