@@ -132,10 +132,6 @@ async def awelcome_command(client, message: Message):
 async def greet_new_members(client: Client, member: ChatMemberUpdated):
     chat_id = member.chat.id
 
-    if not await is_assistant_admin(client, chat_id):
-        await client.send_message(chat_id, "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴅᴏᴇsɴ'ᴛ ᴡᴏʀᴋ ᴡɪᴛʜᴏᴜᴛ ɢɪᴠɪɴɢ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴛᴏ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴏғ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ.")
-        return
-
     welcome_status = await get_awelcome_status(chat_id)
     if welcome_status == "off":
         return
