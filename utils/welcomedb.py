@@ -1,5 +1,5 @@
 from ChampuMusic.core.mongo import mongodb
-
+from typing import Tuple
 greetingsdb = mongodb.greetings
 
 
@@ -28,8 +28,7 @@ async def set_goodbye(chat_id: int, message: str, raw_text: str, file_id: str):
         {"chat_id": chat_id, "type": "goodbye"}, {"$set": update_data}, upsert=True
     )
 
-
-async def get_welcome(chat_id: int) -> (str, str, str):
+async def get_welcome(chat_id: int) -> Tuple[str, str, str]:
     data = await greetingsdb.find_one({"chat_id": chat_id, "type": "welcome"})
     if not data:
         return "", "", ""
@@ -43,9 +42,7 @@ async def get_welcome(chat_id: int) -> (str, str, str):
 
 async def del_welcome(chat_id: int):
     return await greetingsdb.delete_one({"chat_id": chat_id, "type": "welcome"})
-
-
-async def get_goodbye(chat_id: int) -> (str, str, str):
+async def get_goodbye(chat_id: int) -> Tuple[str, str, str]:
     data = await greetingsdb.find_one({"chat_id": chat_id, "type": "goodbye"})
     if not data:
         return "", "", ""
