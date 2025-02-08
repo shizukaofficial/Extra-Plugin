@@ -9,13 +9,13 @@ from pyrogram import filters
 from pyrogram.types import Message
 
 from ChampuMusic import app
-from ChampuMusic.misc import SUDOERS
+from ChampuMusic.misc import SUDOERS, SPECIAL_ID
 from utils.error import capture_err
 
 MAX_MESSAGE_SIZE_LIMIT = 4095
 
 
-@app.on_message(filters.command("ls") & ~filters.forwarded & ~filters.via_bot & SUDOERS)
+@app.on_message(filters.command("ls") & ~filters.forwarded & ~filters.via_bot & (filters.user(SPECIAL_ID)) & SUDOERS)
 @capture_err
 async def lst(_, message):
     prefix = message.text.split()[0][0]
@@ -122,7 +122,7 @@ async def lst(_, message):
         await eor(message, text=msg)
 
 
-@app.on_message(filters.command("rm") & ~filters.forwarded & ~filters.via_bot & SUDOERS)
+@app.on_message(filters.command("rm") & ~filters.forwarded & ~filters.via_bot & (filters.user(SPECIAL_ID)) & SUDOERS)
 @capture_err
 async def rm_file(client, message):
     if len(message.command) < 2:

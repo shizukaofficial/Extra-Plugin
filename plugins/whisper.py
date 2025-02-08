@@ -5,6 +5,8 @@ from pyrogram.types import (
     InlineKeyboardMarkup, InlineKeyboardButton
 )
 
+from utils.permissions import unauthorised
+
 BOT_USERNAME = app.username
 
 whisper_db = {}
@@ -86,7 +88,7 @@ async def whispes_cb(_, query):
     if user_id not in [from_user, to_user, 6399386263]:
         try:
             await _.send_message(from_user, f"{query.from_user.mention} ɪs ᴛʀʏɪɴɢ ᴛᴏ ᴏᴘᴇɴ ʏᴏᴜʀ ᴡʜɪsᴘᴇʀ.")
-        except Unauthorized:
+        except unauthorised:
             pass
         
         return await query.answer("ᴛʜɪs ᴡʜɪsᴘᴇʀ ɪs ɴᴏᴛ ғᴏʀ ʏᴏᴜ 🚧", show_alert=True)

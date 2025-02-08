@@ -1,7 +1,7 @@
 import random
 from ChampuMusic.utils.database import get_served_chats
 from pyrogram import Client, filters
-
+import config
 from ChampuMusic import app
 
 # Define a dictionary to track the last message timestamp for each user
@@ -154,7 +154,7 @@ async def send_good_night():
         return
     for chat_id in chats:
         try:
-            if chat_id == -1002146211959:
+            if chat_id == -1001423108989:
                 continue
             shayari = random.choice(night_shayari)
             await app.send_photo(
@@ -178,7 +178,7 @@ async def send_good_morning():
         return
     for chat_id in chats:
         try:
-            if chat_id == -1002146211959:
+            if chat_id == -1001423108989:
                 continue
             shayari = random.choice(morning_shayari)
             await app.send_photo(

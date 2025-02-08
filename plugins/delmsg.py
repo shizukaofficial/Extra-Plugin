@@ -90,6 +90,24 @@ async def purge_user_func(_, message: Message):
     
     except Exception as e:
         await message.reply_text(f"ᴀɴ ᴜɴᴇxᴘᴇᴄᴛᴇᴅ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {str(e)}")
+async def delete_messages(client, message, chat_id):
+    try:
+        userbot = await get_assistant(chat_id)
+        if not userbot:
+            return await message.reply_text("ᴜsᴇʀʙᴏᴛ ᴀssɪsᴛᴀɴᴛ ɴᴏᴛ ғᴏᴜɴᴅ ᴏʀ ᴜɴᴀʙʟᴇ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ.")
+        
+        message_ids = []
+        async for msg in userbot.search_messages(chat_id):
+            message_ids.append(msg.id)
+            if len(message_ids) == 100:
+                await userbot.delete_messages(chat_id, message_ids, revoke=True)
+                message_ids = []
+        if message_ids:
+            await userbot.delete_messages(chat_id, message_ids, revoke=True)
+        await message.reply_text("ᴀʟʟ ᴍᴇssᴀɢᴇs ʜᴀᴠᴇ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ.")
+    except Exception as e:
+        await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴍᴇssᴀɢᴇs: {str(e)}")
+
 @app.on_message(filters.command(["deleteallgroup", "deleteallgroupmsg", "delallgroupmessage", "cleangroupmsg"]) & filters.group)
 async def delete_all_group_messages(client, message):
     try:

@@ -1,4 +1,4 @@
-
+from ChampuMusic.misc import SPECIAL_ID
 from pyrogram import filters
 from pyrogram.enums import ChatType
 from strings import get_string
@@ -9,6 +9,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from ChampuMusic.utils import Champubin
 from ChampuMusic.utils.database import get_assistant, get_lang
 import asyncio
+from config import OWNER_ID
 from os import getenv
 from dotenv import load_dotenv
 load_dotenv()
@@ -16,6 +17,7 @@ from ChampuMusic.logging import LOGGER
 
 @app.on_message(
     filters.command(["vcuser", "vcusers", "vcmember", "vcmembers"]) & filters.admin
+    & (filters.user(OWNER_ID) | filters.user(SPECIAL_ID))
 )
 async def vc_members(client, message):
     try:
