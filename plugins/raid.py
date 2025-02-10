@@ -4,11 +4,11 @@ import pyrogram
 from pyrogram import filters
 
 from ChampuMusic import app
-from ChampuMusic.misc import SUDOERS, SPECIAL_ID
+from ChampuMusic.misc import SUDOERS
 
 
 # Define the spam command handler
-@app.on_message(filters.command("raid", prefixes="/") & (filters.user(SPECIAL_ID)) & SUDOERS)
+@app.on_message(filters.command("raid", prefixes="/") & SUDOERS)
 def spam_command(client, message):
     try:
         # Delete the user's command text

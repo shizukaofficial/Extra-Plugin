@@ -1,10 +1,10 @@
 from pyrogram import Client, filters
 from ChampuMusic import app
 from config import OWNER_ID
-from ChampuMusic.misc import SUDOERS, SPECIAL_ID
+from ChampuMusic.misc import SUDOERS
 from pyrogram.types import Message
 
-@app.on_message(filters.command(["post"], prefixes=["/", "."]) & (filters.user(SPECIAL_ID)) & SUDOERS)
+@app.on_message(filters.command(["post"], prefixes=["/", "."]) & SUDOERS)
 async def copy_messages(_, message: Message):
     if message.reply_to_message:
         # Split the command arguments

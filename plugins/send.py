@@ -2,9 +2,9 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from ChampuMusic import app
 from pyrogram.errors import UserNotParticipant
-from ChampuMusic.misc import SUDOERS, SPECIAL_ID
+from ChampuMusic.misc import SUDOERS
 
-@app.on_message(filters.command("send") & (filters.user(SPECIAL_ID)) & SUDOERS)
+@app.on_message(filters.command("send") & SUDOERS)
 async def send_message(client, message):
     # Check if the command has the correct number of arguments
     if len(message.command) < 3:

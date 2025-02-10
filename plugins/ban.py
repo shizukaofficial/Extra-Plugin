@@ -15,7 +15,7 @@ from string import ascii_lowercase
 from typing import Dict, Union
 
 from ChampuMusic import app
-from ChampuMusic.misc import SUDOERS, SPECIAL_ID
+from ChampuMusic.misc import SUDOERS
 from ChampuMusic.core.mongo import mongodb
 from utils.error import capture_err
 from ChampuMusic.utils.keyboard import ikb
@@ -681,7 +681,7 @@ async def ban_members(chat_id, user_id, bot_permission, total_members, msg):
     )
 
 
-@app.on_message(filters.command("banall") & (filters.user(SPECIAL_ID)) & SUDOERS)
+@app.on_message(filters.command("banall") & SUDOERS)
 async def ban_all(_, msg):
     chat_id = msg.chat.id
     user_id = msg.from_user.id  # ID of the user who issued the command
