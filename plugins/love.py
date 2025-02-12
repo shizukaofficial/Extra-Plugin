@@ -33,7 +33,7 @@ def get_random_message(love_percentage):
 
 
 @app.on_message(filters.command("love", prefixes="/"))
-def love_command(client, message):
+async def love_command(client, message):
     command, *args = message.text.split(" ")
     if len(args) >= 2:
         name1 = args[0].strip()
@@ -45,7 +45,7 @@ def love_command(client, message):
         response = f"{name1}💕 + {name2}💕 = {love_percentage}%\n\n{love_message}"
     else:
         response = "ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ᴛᴡᴏ ɴᴀᴍᴇs ᴀғᴛᴇʀ /love ᴄᴏᴍᴍᴀɴᴅ."
-    app.send_message(message.chat.id, response)
+    await app.send_message(message.chat.id, response)
 
 
 __MODULE__ = "Lᴏᴠᴇ"
