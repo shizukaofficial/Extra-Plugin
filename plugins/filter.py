@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import re
 import datetime
 from pyrogram import Client, filters
@@ -29,6 +30,7 @@ from ChampuMusic.utils.database import (
     get_filter,
     get_filters_names,
     save_filter,
+    delete_filter,
 )
 
 from config import BANNED_USERS
@@ -50,6 +52,7 @@ You can use markdown or html to save text too.
 
 Checkout /markdownhelp to know more about formattings and other syntax.
 """
+
 
 
 @app.on_message(filters.command("filter") & ~filters.private & ~BANNED_USERS)
@@ -295,3 +298,46 @@ async def stop_all_cb(_, cb):
     if input == "no":
         await cb.message.reply_to_message.delete()
         await cb.message.delete()
+
+
+@app.on_message(filters.command('filters') & filters.group)
+async def _filters(client, message):
+    chat_id = message.chat.id
+    chat_title = message.chat.title 
+    if message.chat.type == 'private':
+        chat_title = 'local'
+    FILTERS = await get_filters_names(chat_id) 
+    if len(FILTERS) == 0:
+        await message.reply(
+            f'No filters in {chat_title}.'
+        )
+        return
+
+    filters_list = f'List of filters in {chat_title}:\n'
+    
+    for filter_ in FILTERS:
+        filters_list += f'- `{filter_}`\n'
+    
+    await message.reply(
+        filters_list
+    )
+
+@app.on_message(filters.command('stopfilter') & filters.group & ~BANNED_USERS)
+@adminsOnly("can_change_info")
+async def stop(client, message: Message):
+    try:
+        if len(message.command) < 2:
+            return await message.reply_text("**Usage:** /stopfilter [FILTER_NAME]")
+
+        filter_name = message.command[1]
+        filters_list = await get_filters_names(message.chat.id)
+
+        if filter_name not in filters_list:
+            return await message.reply_text("You haven't saved any filters on this word yet!")
+
+        await delete_filter(message.chat.id, filter_name)
+        await message.reply_text(f"I've stopped `{filter_name}`.")
+
+    except Exception as e:
+        logger.error(f"Error in stop: {e}")
+        await message.reply_text("An error occurred while stopping the filter. Please try again.")
