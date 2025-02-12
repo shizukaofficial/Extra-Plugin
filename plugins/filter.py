@@ -45,7 +45,7 @@ Supported filter types are Text, Animation, Photo, Document, Video, video notes,
 To use more words in a filter use.
 `/filter Hey_there` To filter "Hey there".
 
-/stop [FILTER_NAME] To Stop A Filter.
+/stopfilter [FILTER_NAME] To Stop A Filter.
 /stopall To delete all the filters in a chat (permanently).
 
 You can use markdown or html to save text too.
