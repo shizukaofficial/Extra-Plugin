@@ -19,10 +19,19 @@ import config
 mongo_client = MongoClient(config.MONGO_DB_URI)
 db = mongo_client["Rankings"]
 collection = db["ranking"]
+daily_collection = db["daily_ranking"]
 
 # In-memory data storage
 user_data = {}
 today = {}
+
+# Load daily rankings from MongoDB on bot start
+async def load_daily_rankings():
+    global today
+    today = {}
+    for chat in daily_collection.find():
+        chat_id = chat["_id"]
+        today[chat_id] = chat["users"]
 
 # Image URLs
 Champu = [
@@ -48,6 +57,13 @@ def today_watcher(_, message):
             today[chat_id][user_id] = {"total_messages": 1}
         else:
             today[chat_id][user_id]["total_messages"] = 1
+    
+    # Save to MongoDB
+    daily_collection.update_one(
+        {"_id": chat_id},
+        {"$set": {"users": today[chat_id]}},
+        upsert=True
+    )
 
 # Watcher for overall messages
 @app.on_message(filters.group & filters.group, group=11)
@@ -85,7 +101,7 @@ async def today_(_, message):
         else:
             await message.reply_text("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
     else:
-        await message.reply_text("❅ ɴᴏ �ᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ �ᴏᴅᴀʏ.")
+        await message.reply_text("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
 
 # Command to display overall leaderboard
 @app.on_message(filters.command("ranking"))
@@ -157,3 +173,6 @@ async def overall_rank(_, query):
                InlineKeyboardButton("ᴛᴏᴅᴀʏ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="today"),
             ]])
     await query.message.edit_text(response, reply_markup=button)
+
+# Load daily rankings when the bot starts
+app.run(load_daily_rankings())
