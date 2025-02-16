@@ -21,7 +21,7 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
 mongo_client = MongoClient(config.MONGO_DB_URI)
-db = mongo_client["rankings"]
+db = mongo_client["Rankings"]
 collection = db["ranking"]
 
 user_data = {}
@@ -143,7 +143,6 @@ async def today_rank(_, query):
             await query.answer("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
     else:
         await query.answer("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
-
 
 
 @app.on_callback_query(filters.regex("overall"))
