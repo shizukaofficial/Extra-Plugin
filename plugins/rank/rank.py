@@ -5,29 +5,26 @@ from pyrogram.types import *
 from pyrogram.errors import MessageNotModified
 from pyrogram.types import (CallbackQuery, InlineKeyboardButton,
                             InlineKeyboardMarkup, Message)
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.types import InputMediaPhoto
 from typing import Union
-
 import asyncio
 import random
-from pyrogram import Client, filters
 import requests
 import os
-import time 
-from pyrogram import filters
+import time
 from pyrogram.enums import ChatType
-from pyrogram.types import InlineKeyboardMarkup, Message
-
 import config
+
+# MongoDB connection
 mongo_client = MongoClient(config.MONGO_DB_URI)
 db = mongo_client["Rankings"]
 collection = db["ranking"]
 
+# In-memory data storage
 user_data = {}
-
 today = {}
 
+# Image URLs
 Champu = [
     "https://telegra.ph/file/56f46a11100eb698563f1.jpg",
     "https://telegra.ph/file/66552cbeb49088f98f752.jpg",
@@ -37,8 +34,7 @@ Champu = [
     "https://telegra.ph/file/35621d8878aefb0dcd899.jpg"
 ]
 
-#watcher
-
+# Watcher for today's messages
 @app.on_message(filters.group & filters.group, group=6)
 def today_watcher(_, message):
     chat_id = message.chat.id
@@ -53,7 +49,7 @@ def today_watcher(_, message):
         else:
             today[chat_id][user_id]["total_messages"] = 1
 
-
+# Watcher for overall messages
 @app.on_message(filters.group & filters.group, group=11)
 def _watcher(_, message):
     user_id = message.from_user.id    
@@ -61,8 +57,7 @@ def _watcher(_, message):
     user_data[user_id]["total_messages"] += 1    
     collection.update_one({"_id": user_id}, {"$inc": {"total_messages": 1}}, upsert=True)
 
-# ------------------- ranks ------------------ #          
-
+# Command to display today's leaderboard
 @app.on_message(filters.command("today"))
 async def today_(_, message):
     chat_id = message.chat.id
@@ -86,13 +81,13 @@ async def today_(_, message):
                 [[    
                    InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="overall"),
                 ]])
-            await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button)
+            await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button, has_spoiler=True)
         else:
             await message.reply_text("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
     else:
-        await message.reply_text("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
+        await message.reply_text("❅ ɴᴏ �ᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ �ᴏᴅᴀʏ.")
 
-
+# Command to display overall leaderboard
 @app.on_message(filters.command("ranking"))
 async def ranking(_, message):
     top_members = collection.find().sort("total_messages", -1).limit(10)
@@ -112,12 +107,9 @@ async def ranking(_, message):
             [[    
                InlineKeyboardButton("ᴛᴏᴅᴀʏ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="today"),
             ]])
-    await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button)
+    await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button, has_spoiler=True)
 
-
-
-# -------------------- regex -------------------- # 
-
+# Callback query for today's leaderboard
 @app.on_callback_query(filters.regex("today"))
 async def today_rank(_, query):
     chat_id = query.message.chat.id
@@ -144,7 +136,7 @@ async def today_rank(_, query):
     else:
         await query.answer("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
 
-
+# Callback query for overall leaderboard
 @app.on_callback_query(filters.regex("overall"))
 async def overall_rank(_, query):
     top_members = collection.find().sort("total_messages", -1).limit(10)
