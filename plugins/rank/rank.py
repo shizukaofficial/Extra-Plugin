@@ -14,8 +14,6 @@ import os
 import time
 from pyrogram.enums import ChatType
 import config
-import matplotlib.pyplot as plt
-import io
 
 # MongoDB connection
 mongo_client = MongoClient(config.MONGO_DB_URI)
@@ -35,25 +33,15 @@ async def load_daily_rankings():
         chat_id = chat["_id"]
         today[chat_id] = chat["users"]
 
-# Function to generate a bar chart for rankings
-def generate_ranking_chart(data, title):
-    users = [entry[0] for entry in data]
-    messages = [entry[1] for entry in data]
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(users, messages, color='skyblue')
-    plt.xlabel('Users')
-    plt.ylabel('Total Messages')
-    plt.title(title)
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
-
-    # Save the plot to a BytesIO object
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close()
-    return buf
+# Image URLs
+Champu = [
+    "https://telegra.ph/file/56f46a11100eb698563f1.jpg",
+    "https://telegra.ph/file/66552cbeb49088f98f752.jpg",
+    "https://telegra.ph/file/a9ada352fd34ec8a01013.jpg",
+    "https://telegra.ph/file/47a852d5b1c4c11a497c2.jpg",
+    "https://telegra.ph/file/f002db994f436aaee892c.jpg",
+    "https://telegra.ph/file/35621d8878aefb0dcd899.jpg"
+]
 
 # Watcher for today's messages
 @app.on_message(filters.group & filters.group, group=6)
@@ -105,17 +93,11 @@ async def today_(_, message):
                     user_name = "Unknown"
                 user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
                 response += user_info
-
-            # Generate chart
-            chart_data = [(await app.get_users(user_id)).first_name if (await app.get_users(user_id)).first_name else "Unknown" for user_id, _ in sorted_users_data]
-            chart_values = [total_messages for _, total_messages in sorted_users_data]
-            chart = generate_ranking_chart(list(zip(chart_data, chart_values)), "Today's Leaderboard")
-
             button = InlineKeyboardMarkup(
                 [[    
                    InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="overall"),
                 ]])
-            await message.reply_photo(chart, caption=response, reply_markup=button, has_spoiler=True)
+            await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button, has_spoiler=True)
         else:
             await message.reply_text("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
     else:
@@ -127,8 +109,6 @@ async def ranking(_, message):
     top_members = collection.find().sort("total_messages", -1).limit(10)
 
     response = "⬤ 📈 ᴄᴜʀʀᴇɴᴛ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ\n\n"
-    chart_data = []
-    chart_values = []
     for idx, member in enumerate(top_members, start=1):
         user_id = member["_id"]
         total_messages = member["total_messages"]
@@ -138,18 +118,12 @@ async def ranking(_, message):
             user_name = "Unknown"
 
         user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
-        response += user_info
-        chart_data.append(user_name)
-        chart_values.append(total_messages)
-
-    # Generate chart
-    chart = generate_ranking_chart(list(zip(chart_data, chart_values)), "Overall Leaderboard")
-
+        response += user_info 
     button = InlineKeyboardMarkup(
             [[    
                InlineKeyboardButton("ᴛᴏᴅᴀʏ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="today"),
             ]])
-    await message.reply_photo(chart, caption=response, reply_markup=button, has_spoiler=True)
+    await message.reply_photo(random.choice(Champu), caption=response, reply_markup=button, has_spoiler=True)
 
 # Callback query for today's leaderboard
 @app.on_callback_query(filters.regex("today"))
@@ -168,17 +142,11 @@ async def today_rank(_, query):
                     user_name = "Unknown"
                 user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
                 response += user_info
-
-            # Generate chart
-            chart_data = [(await app.get_users(user_id)).first_name if (await app.get_users(user_id)).first_name else "Unknown" for user_id, _ in sorted_users_data]
-            chart_values = [total_messages for _, total_messages in sorted_users_data]
-            chart = generate_ranking_chart(list(zip(chart_data, chart_values)), "Today's Leaderboard")
-
             button = InlineKeyboardMarkup(
                 [[    
                    InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="overall"),
                 ]])
-            await query.message.edit_media(InputMediaPhoto(chart, caption=response), reply_markup=button)
+            await query.message.edit_text(response, reply_markup=button)
         else:
             await query.answer("❅ ɴᴏ ᴅᴀᴛᴀ ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛᴏᴅᴀʏ.")
     else:
@@ -190,8 +158,6 @@ async def overall_rank(_, query):
     top_members = collection.find().sort("total_messages", -1).limit(10)
 
     response = "⬤ 📈 ᴏᴠᴇʀᴀʟʟ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ\n\n"
-    chart_data = []
-    chart_values = []
     for idx, member in enumerate(top_members, start=1):
         user_id = member["_id"]
         total_messages = member["total_messages"]
@@ -201,18 +167,12 @@ async def overall_rank(_, query):
             user_name = "Unknown"
 
         user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
-        response += user_info
-        chart_data.append(user_name)
-        chart_values.append(total_messages)
-
-    # Generate chart
-    chart = generate_ranking_chart(list(zip(chart_data, chart_values)), "Overall Leaderboard")
-
+        response += user_info 
     button = InlineKeyboardMarkup(
             [[    
                InlineKeyboardButton("ᴛᴏᴅᴀʏ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="today"),
             ]])
-    await query.message.edit_media(InputMediaPhoto(chart, caption=response), reply_markup=button)
+    await query.message.edit_text(response, reply_markup=button)
 
 # Load daily rankings when the bot starts
 app.run(load_daily_rankings())
