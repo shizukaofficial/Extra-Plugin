@@ -65,21 +65,23 @@ def _watcher(_, message):
     except Exception as e:
         logger.error(f"Error in _watcher: {e}")
 
-# Function to generate a graph
-def generate_graph(data, title):
+# Function to generate a horizontal bar chart
+def generate_horizontal_bar_chart(data, title):
     try:
         users = [user[0] for user in data]
         messages = [user[1] for user in data]
         
         plt.figure(figsize=(10, 6))
-        plt.bar(users, messages, color='skyblue')
-        plt.xlabel('Users')
-        plt.ylabel('Total Messages')
+        plt.barh(users, messages, color='skyblue')
+        plt.xlabel('Total Messages')
+        plt.ylabel('Users')
         plt.title(title)
-        plt.xticks(rotation=45)
+        
+        for index, value in enumerate(messages):
+            plt.text(value, index, str(value))
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png')
+        plt.savefig(buf, format='png', bbox_inches='tight')
         buf.seek(0)
         plt.close()
         return buf
@@ -109,8 +111,8 @@ async def today_(_, message):
                     user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
                     response += user_info
                 
-                # Generate graph
-                graph = generate_graph([(user_name, total_messages) for user_id, total_messages in sorted_users_data], "Today's Leaderboard")
+                # Generate horizontal bar chart
+                graph = generate_horizontal_bar_chart([(user_name, total_messages) for user_id, total_messages in sorted_users_data], "Today's Leaderboard")
                 
                 if graph:
                     button = InlineKeyboardMarkup(
@@ -148,8 +150,8 @@ async def ranking(_, message):
             response += user_info
             users_data.append((user_name, total_messages))
         
-        # Generate graph
-        graph = generate_graph(users_data, "Overall Leaderboard")
+        # Generate horizontal bar chart
+        graph = generate_horizontal_bar_chart(users_data, "Overall Leaderboard")
         
         if graph:
             button = InlineKeyboardMarkup(
@@ -182,8 +184,8 @@ async def today_rank(_, query):
                     user_info = f"{idx}.   {user_name} ➥ {total_messages}\n"
                     response += user_info
                 
-                # Generate graph
-                graph = generate_graph([(user_name, total_messages) for user_id, total_messages in sorted_users_data], "Today's Leaderboard")
+                # Generate horizontal bar chart
+                graph = generate_horizontal_bar_chart([(user_name, total_messages) for user_id, total_messages in sorted_users_data], "Today's Leaderboard")
                 
                 if graph:
                     button = InlineKeyboardMarkup(
@@ -221,8 +223,8 @@ async def overall_rank(_, query):
             response += user_info
             users_data.append((user_name, total_messages))
         
-        # Generate graph
-        graph = generate_graph(users_data, "Overall Leaderboard")
+        # Generate horizontal bar chart
+        graph = generate_horizontal_bar_chart(users_data, "Overall Leaderboard")
         
         if graph:
             button = InlineKeyboardMarkup(
