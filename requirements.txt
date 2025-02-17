@@ -10,5 +10,6 @@ SafoneAPI
 nekos.py
 telegraph
 uuid
+google-generativeai
 git+https://github.com/TheChampu/TheAPI
 git+https://github.com/TheChampu/ChampuAPI
