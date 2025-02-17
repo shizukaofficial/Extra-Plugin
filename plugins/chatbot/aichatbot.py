@@ -1,6 +1,7 @@
 import random
 import requests
 import json
+from ChampuMusic import app
 from pymongo import MongoClient
 from pyrogram import Client, filters
 from pyrogram.enums import ChatAction, ChatMemberStatus
