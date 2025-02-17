@@ -10,6 +10,5 @@ SafoneAPI
 nekos.py
 telegraph
 uuid
-matplotlib
 git+https://github.com/TheChampu/TheAPI
 git+https://github.com/TheChampu/ChampuAPI
