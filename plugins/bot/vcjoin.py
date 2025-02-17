@@ -3,8 +3,8 @@ from pyrogram.types import ChatMemberUpdated, Message
 from typing import Union, List
 from pyrogram import Client, filters
 from ChampuMusic import app
-from pytgcalls import StreamType, AlreadyJoinedError
-from pytgcalls.exceptions import NoActiveCallError  # Updated import
+from pytgcalls import StreamType
+from pytgcalls.exceptions import NoActiveCallError, AlreadyJoinedGroupCallError  # Updated import
 from pytgcalls.types.input_stream import AudioPiped
 import asyncio
 from ChampuMusic.core.call import Champu
@@ -60,7 +60,7 @@ async def strcall(client, message):
     
     except NoActiveCallError:  # Updated exception
         await message.reply("No active group call found. Please start a voice chat first.")
-    except AlreadyJoinedError:
+    except AlreadyJoinedGroupCallError:
         participants = await assistant.get_participants(message.chat.id)
         text = "Participants in the call 🫶 :\n\n"
         for index, participant in enumerate(participants, start=1):
