@@ -267,11 +267,12 @@ async def promoteFunc(_, message: Message):
     if not bot.can_promote_members:
         return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs")
 
-    umention = (await app.get_users(user_id)).mention
+    user = await app.get_users(user_id)  # Get the user object
+    umention = user.mention  # Get the mention attribute from the user object
 
     if message.command[0][0] == "f":
         await message.chat.promote_member(
-            user_id=user_id,
+            user_id=user.id,
             privileges=ChatPrivileges(
                 can_change_info=bot.can_change_info,
                 can_invite_users=bot.can_invite_users,
@@ -286,7 +287,7 @@ async def promoteFunc(_, message: Message):
         return await message.reply_text(f"ғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ! {umention}")
 
     await message.chat.promote_member(
-        user_id=user_id,
+        user_id=user.id,
         privileges=ChatPrivileges(
             can_change_info=False,
             can_invite_users=bot.can_invite_users,
