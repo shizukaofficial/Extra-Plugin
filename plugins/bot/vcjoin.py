@@ -5,7 +5,7 @@ from pyrogram import Client, filters
 from ChampuMusic import app
 
 # Default state for /infovc
-infovc_enabled = True  # Default enabled
+infovc_enabled = False  # Default disable
 
 # Command decorator
 def command(commands: Union[str, List[str]]):
@@ -52,12 +52,12 @@ async def user_joined_voice_chat(client: Client, chat_member_updated: ChatMember
         new_status = chat_member_updated.new_chat_member.status
 
         if old_status in ["left", "kicked", "member"] and new_status == "voice_chat_participant":
-            # Construct the message
+            # Construct the message with user mention
             text = (
                 f"**#JoinVoiceChat**\n"
                 f"👤 **Name:** {user.mention}\n"
                 f"🆔 **ID:** `{user.id}`\n"
-                f"🎤 **Action:** Joined a voice chat"
+                f"🎤 **Action:** Joined the voice chat"
             )
 
             # Debug: Log the message before sending
