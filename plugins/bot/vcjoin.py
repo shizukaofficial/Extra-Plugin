@@ -42,14 +42,21 @@ async def user_joined_voice_chat(client: Client, chat_member_updated: ChatMember
         if not chat or not user:
             return
 
+        # Ensure old_chat_member and new_chat_member are not None
+        old_chat_member = chat_member_updated.old_chat_member
+        new_chat_member = chat_member_updated.new_chat_member
+
+        if not old_chat_member or not new_chat_member:
+            return
+
         # Debugging logs
         print(f"🔍 ChatMemberUpdated Event Detected!")
-        print(f"📌 Old Status: {chat_member_updated.old_chat_member.status}")
-        print(f"📌 New Status: {chat_member_updated.new_chat_member.status}")
+        print(f"📌 Old Status: {old_chat_member.status}")
+        print(f"📌 New Status: {new_chat_member.status}")
 
         # Check if the user joined a voice chat
-        old_status = chat_member_updated.old_chat_member.status
-        new_status = chat_member_updated.new_chat_member.status
+        old_status = old_chat_member.status
+        new_status = new_chat_member.status
 
         if old_status in ["left", "kicked", "member"] and new_status == "voice_chat_participant":
             # Construct the message with user mention
