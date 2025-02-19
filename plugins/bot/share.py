@@ -4,11 +4,11 @@ from ChampuMusic import app
 from datetime import datetime, timedelta
 import asyncio
 
-# User data and state management
+# User data and ask management
 user_data = {}
 
-# Define states for the FSM
-class State:
+# Define asks for the FSM
+class ask:
     WAITING_FOR_PHOTO = 1
     WAITING_FOR_CAPTION = 2
     WAITING_FOR_BUTTONS_CONFIRMATION = 3
@@ -24,18 +24,18 @@ def clear_user_data(chat_id):
 @app.on_message(filters.command("share"))
 async def share_command(client, message):
     chat_id = message.chat.id
-    user_data[chat_id] = {'state': State.WAITING_FOR_PHOTO, 'timestamp': datetime.now()}
+    user_data[chat_id] = {'ask': ask.WAITING_FOR_PHOTO, 'timestamp': datetime.now()}
     await message.reply("Please send only photo for your share message.")
 
 # Handle photo messages
 @app.on_message(filters.photo)
 async def receive_photo(client, message):
     chat_id = message.chat.id
-    if chat_id not in user_data or user_data[chat_id]['state'] != State.WAITING_FOR_PHOTO:
+    if chat_id not in user_data or user_data[chat_id]['ask'] != ask.WAITING_FOR_PHOTO:
         return
     
     user_data[chat_id]['photo'] = message.photo.file_id
-    user_data[chat_id]['state'] = State.WAITING_FOR_CAPTION
+    user_data[chat_id]['ask'] = ask.WAITING_FOR_CAPTION
     await message.reply("Great! Now, send me the caption.")
 
 # Handle text messages (captions and button data)
@@ -46,23 +46,23 @@ async def receive_text(client, message):
         return
     
     data = user_data[chat_id]
-    current_state = data['state']
+    current_ask = data['ask']
     
-    if current_state == State.WAITING_FOR_CAPTION:
+    if current_ask == ask.WAITING_FOR_CAPTION:
         data['caption'] = message.text
-        data['state'] = State.WAITING_FOR_BUTTONS_CONFIRMATION
+        data['ask'] = ask.WAITING_FOR_BUTTONS_CONFIRMATION
         await message.reply("Do you want to add buttons? (Yes/No)")
     
-    elif current_state == State.WAITING_FOR_BUTTONS_CONFIRMATION:
+    elif current_ask == ask.WAITING_FOR_BUTTONS_CONFIRMATION:
         if message.text.lower() == "yes":
-            data['state'] = State.WAITING_FOR_BUTTON_COUNT
+            data['ask'] = ask.WAITING_FOR_BUTTON_COUNT
             await message.reply("How many buttons do you want to add?")
         elif message.text.lower() == "no":
             await send_final_message(client, chat_id)
         else:
             await message.reply("Please respond with 'Yes' or 'No'.")
     
-    elif current_state == State.WAITING_FOR_BUTTON_COUNT:
+    elif current_ask == ask.WAITING_FOR_BUTTON_COUNT:
         try:
             button_count = int(message.text)
             if button_count <= 0:
@@ -71,12 +71,12 @@ async def receive_text(client, message):
             data['button_count'] = button_count
             data['buttons'] = []
             data['current_button'] = 1
-            data['state'] = State.WAITING_FOR_BUTTON_DATA
+            data['ask'] = ask.WAITING_FOR_BUTTON_DATA
             await message.reply(f"Send the name and link for button {data['current_button']} (Format: Name | URL)")
         except ValueError:
             await message.reply("Please send a valid number.")
     
-    elif current_state == State.WAITING_FOR_BUTTON_DATA:
+    elif current_ask == ask.WAITING_FOR_BUTTON_DATA:
         parts = message.text.split("|")
         if len(parts) == 2:
             name, url = parts[0].strip(), parts[1].strip()
