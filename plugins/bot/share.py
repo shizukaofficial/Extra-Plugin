@@ -1,8 +1,13 @@
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from ChampuMusic import app
 from datetime import datetime, timedelta
 import asyncio
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # User data and ask management
 user_data = {}
@@ -106,6 +111,7 @@ async def send_final_message(client, chat_id):
         reply_markup=reply_markup
     )
     clear_user_data(chat_id)
+
 # Timeout handling (optional)
 async def check_timeouts():
     while True:
@@ -118,7 +124,6 @@ async def check_timeouts():
 
 # Run the timeout checker in the background
 asyncio.create_task(check_timeouts())
-
 
 MODULE = "Share"
 HELP = """
