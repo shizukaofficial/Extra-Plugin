@@ -25,7 +25,7 @@ def clear_user_data(chat_id):
 async def share_command(client, message):
     chat_id = message.chat.id
     user_data[chat_id] = {'state': State.WAITING_FOR_PHOTO, 'timestamp': datetime.now()}
-    await message.reply("Please send the image/photo for your share message.")
+    await message.reply("Please send only photo for your share message.")
 
 # Handle photo messages
 @app.on_message(filters.photo)
