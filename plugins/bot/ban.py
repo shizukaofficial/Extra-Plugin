@@ -23,7 +23,6 @@ from utils.error import capture_err
 from ChampuMusic.utils.keyboard import ikb
 from ChampuMusic.utils.database import save_filter
 from ChampuMusic.utils.functions import (
-    extract_user,
     extract_user_and_reason,
     time_converter,
 )
@@ -71,6 +70,50 @@ async def int_to_alpha(user_id: int) -> str:
     for i in user_id:
         text += alphabet[int(i)]
     return text
+
+async def extract_user(message: Message) -> Union[int, str, None]:
+    """Extract user ID or username from a message."""
+    user_id = None
+
+    # Check if the message is a reply to another message
+    if message.reply_to_message:
+        return message.reply_to_message.from_user.id
+
+    # Check if the message contains text
+    if not message.text:
+        return None
+
+    # Check if the message contains entities (e.g., mentions, user IDs)
+    if not message.entities:
+        return None
+
+    # Extract user ID or username from the message entities
+    try:
+        # If the message starts with a command (e.g., "/unban"), skip the first entity (the command itself)
+        if message.text.startswith("/"):
+            if len(message.entities) > 1:
+                msg_entities = message.entities[1]
+            else:
+                return None
+        else:
+            msg_entities = message.entities[0]
+
+        # Check if the entity is a mention or text mention
+        if msg_entities.type in ["mention", "text_mention"]:
+            if msg_entities.type == "mention":
+                # Extract username from the mention (e.g., "@username")
+                username = message.text[msg_entities.offset : msg_entities.offset + msg_entities.length]
+                user = await app.get_users(username)
+                return user.id
+            elif msg_entities.type == "text_mention":
+                # Extract user ID from the text mention
+                return msg_entities.user.id
+
+    except (IndexError, AttributeError, KeyError) as e:
+        logger.error(f"Error extracting user: {e}")
+        return None
+
+    return None
 
 async def get_warns_count() -> dict:
     chats_count = 0
@@ -182,17 +225,20 @@ async def banFunc(_, message: Message):
 @app.on_message(filters.command("unban") & ~filters.private & ~BANNED_USERS)
 @adminsOnly("can_restrict_members")
 async def unban_func(_, message: Message):
-    reply = message.reply_to_message
     user_id = await extract_user(message)
     if not user_id:
-        return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ.")
+        return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ. ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴜsᴇʀɴᴀᴍᴇ/ɪᴅ.")
+
     try:
         user_id = int(user_id)  # Ensure user_id is an integer
     except (ValueError, TypeError):
         return await message.reply_text("ɪɴᴠᴀʟɪᴅ ᴜsᴇʀ ɪᴅ.")
+
+    reply = message.reply_to_message
     if reply and reply.sender_chat and reply.sender_chat != message.chat.id:
-        return await message.reply_text("ʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴜɴʙᴀɴ ᴀ ᴄʜᴀɴɴᴇʟ")
-    logger.info(f"Unbanning User ID: {user_id}, Type: {type(user_id)}")  # Debugging
+        return await message.reply_text("ʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴜɴʙᴀɴ ᴀ ᴄʜᴀɴɴᴇʟ.")
+
+    logger.info(f"Unbanning User ID: {user_id}, Type: {type(user_id)}")
     await message.chat.unban_member(user_id)
     umention = (await app.get_users(user_id)).mention
     replied_message = message.reply_to_message
