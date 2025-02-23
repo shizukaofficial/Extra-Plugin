@@ -2,6 +2,7 @@ apscheduler
 bing-image-urls
 gTTS
 googlesearch-python
+python-telegram-bot
 httpx[http2]
 pyfiglet
 requests
