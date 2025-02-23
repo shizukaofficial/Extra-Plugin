@@ -265,11 +265,11 @@ async def promoteFunc(client: Client, message: Message):
         # Extract user ID and admin title from the command
         if len(message.command) > 1:
             user = message.command[1]
-            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "Admin"
+            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "Champu"
         else:
             # Fall back to extracting user from replied message
             user = await extract_user(message)
-            admin_title = "Admin"
+            admin_title = "Champu"
 
         if not user:
             return await message.reply_text("User not found.")
@@ -293,6 +293,11 @@ async def promoteFunc(client: Client, message: Message):
         # Check if the user is the bot itself
         if user_id == client.me.id:
             return await message.reply_text("I can't promote myself.")
+
+        # Check if the chat is a supergroup
+        chat = await client.get_chat(message.chat.id)
+        if chat.type != "supergroup":
+            return await message.reply_text("Custom titles can only be set in supergroups.")
 
         # Promote the user
         try:
@@ -327,7 +332,7 @@ async def promoteFunc(client: Client, message: Message):
                     )
                 )
 
-            # Set the admin title
+            # Set the admin title (only if the user is successfully promoted)
             await client.set_administrator_title(
                 chat_id=message.chat.id,
                 user_id=user_id,
