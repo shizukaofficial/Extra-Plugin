@@ -259,7 +259,6 @@ async def unban_func(_, message: Message):
 
 # Database to store custom titles (example using a dictionary; replace with a real database)
 custom_titles_db = {}
-
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
 @adminsOnly("can_promote_members")
 async def promoteFunc(client: Client, message: Message):
@@ -303,6 +302,12 @@ async def promoteFunc(client: Client, message: Message):
                 return await message.reply_text(f"User {user_obj.mention} is not in this group. They must join first to be promoted.")
         except UserNotParticipant:
             return await message.reply_text(f"User {user_obj.mention} is not in this group. They must join first to be promoted.")
+        except PeerIdInvalid:
+            return await message.reply_text("The user ID is invalid or the bot has not interacted with them yet.")
+
+        # Check if the chat is a supergroup
+        chat = await client.get_chat(message.chat.id)
+        is_supergroup = chat.type == ChatType.SUPERGROUP
 
         # Promote the user
         try:
@@ -340,10 +345,6 @@ async def promoteFunc(client: Client, message: Message):
             # Store the custom title in the database (even for basic groups)
             custom_titles_db[(message.chat.id, user_id)] = admin_title
 
-            # Check if the chat is a supergroup
-            chat = await client.get_chat(message.chat.id)
-            is_supergroup = chat.type == ChatType.SUPERGROUP
-
             # Set the admin title only if the chat is a supergroup
             if is_supergroup:
                 try:
@@ -364,7 +365,7 @@ async def promoteFunc(client: Client, message: Message):
                 await message.reply_text(f"Promoted! {user_mention} with title: {admin_title} (Note: Custom titles are not officially supported in this chat type).")
 
         except PeerIdInvalid:
-            await message.reply_text("The user is not in this group. They must join first to be promoted.")
+            await message.reply_text("The user ID is invalid or the bot has not interacted with them yet.")
         except Exception as e:
             logger.error(f"Error promoting user: {e}")
             await message.reply_text(f"Failed to promote user: {e}")
