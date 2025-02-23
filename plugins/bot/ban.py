@@ -272,7 +272,7 @@ async def promoteFunc(client: Client, message: Message):
             admin_title = "Champu"
 
         if not user:
-            return await message.reply_text("User not found.")
+            return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
 
         try:
             user_id = int(user)  # Try to convert to integer (in case of user ID)
@@ -283,21 +283,20 @@ async def promoteFunc(client: Client, message: Message):
                 user_id = user_obj.id
             except Exception as e:
                 logger.error(f"Error extracting user: {e}")
-                return await message.reply_text("User not found.")
+                return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
 
         # Ensure the bot has the necessary permissions
         bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
         if not bot or not bot.can_promote_members:
-            return await message.reply_text("I don't have enough permissions to promote members.")
+            return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇᴍʙᴇʀs.")
 
         # Check if the user is the bot itself
         if user_id == client.me.id:
-            return await message.reply_text("I can't promote myself.")
+            return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
 
         # Check if the chat is a supergroup
         chat = await client.get_chat(message.chat.id)
-        if chat.type != "supergroup":
-            return await message.reply_text("Custom titles can only be set in supergroups.")
+        is_supergroup = chat.type == "supergroup"
 
         # Promote the user
         try:
@@ -332,24 +331,28 @@ async def promoteFunc(client: Client, message: Message):
                     )
                 )
 
-            # Set the admin title (only if the user is successfully promoted)
-            await client.set_administrator_title(
-                chat_id=message.chat.id,
-                user_id=user_id,
-                title=admin_title
-            )
+            # Set the admin title only if the chat is a supergroup
+            if is_supergroup:
+                await client.set_administrator_title(
+                    chat_id=message.chat.id,
+                    user_id=user_id,
+                    title=admin_title
+                )
 
             # Notify the chat about the promotion
             user_mention = (await client.get_users(user_id)).mention
-            await message.reply_text(f"Promoted! {user_mention} with title: {admin_title}")
+            if is_supergroup:
+                await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
+            else:
+                await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} (ᴄᴜsᴛᴏᴍ ᴛɪᴛʟᴇs ᴀʀᴇ ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ɪɴ ᴛʜɪs ᴄʜᴀᴛ ᴛʏᴘᴇ).")
 
         except Exception as e:
             logger.error(f"Error promoting user: {e}")
-            await message.reply_text(f"Failed to promote user: {e}")
+            await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ: {e}")
 
     except Exception as e:
         logger.error(f"Unexpected error in promoteFunc: {e}")
-        await message.reply_text(f"An unexpected error occurred: {e}")
+        await message.reply_text(f"ᴀɴ ᴜɴᴇxᴘᴇᴄᴛᴇᴅ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {e}")
 
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
