@@ -59,6 +59,8 @@ SHAYRI = [
 SHAYRI_COMMAND = ["gf", "bf", "shayri", "sari", "shari", "love"]
 
 
+# ...existing code...
+
 @app.on_message(filters.command(SHAYRI_COMMAND) & filters.group)
 async def help(client: Client, message: Message):
     await message.reply_text(
@@ -66,8 +68,8 @@ async def help(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(
             [
             [
-              InlineKeyboardButton(text=_["S_B_3"], url=config.SUPPORT_GROUP),
-              InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHANNEL),
+              InlineKeyboardButton(text="Support Group", url=config.SUPPORT_GROUP),
+              InlineKeyboardButton(text="Support Channel", url=config.SUPPORT_CHANNEL),
             ],
             ]
         ),
@@ -81,12 +83,14 @@ async def help(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(
             [
             [
-              InlineKeyboardButton(text=_["S_B_3"], url=config.SUPPORT_GROUP),
-              InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHANNEL),
+              InlineKeyboardButton(text="Support Group", url=config.SUPPORT_GROUP),
+              InlineKeyboardButton(text="Support Channel", url=config.SUPPORT_CHANNEL),
             ],
             ]
         ),
     )
+
+# ...existing code...
 
 
 __MODULE__ = "Sʜᴀʏᴀʀɪ"

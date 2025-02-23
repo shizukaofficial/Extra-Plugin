@@ -5,7 +5,7 @@ from string import ascii_lowercase
 from typing import Dict, Union
 
 from pyrogram import filters
-from pyrogram.enums import ChatMembersFilter, ChatMemberStatus, ChatType
+from pyrogram.enums import ChatMembersFilter
 from pyrogram.types import (
     CallbackQuery,
     ChatPermissions,
@@ -28,6 +28,12 @@ from ChampuMusic.utils.functions import (
 )
 from utils.permissions import adminsOnly, member_permissions
 from config import BANNED_USERS
+
+from telegram import Update
+from telegram.ext import CallbackContext, CommandHandler
+from telegram.error import BadRequest
+from telegram.constants import ChatMemberStatus
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -254,76 +260,58 @@ async def unban_func(_, message: Message):
 
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private & ~BANNED_USERS)
 @adminsOnly("can_promote_members")
-async def promoteFunc(_, message: Message):
-    # Extract user ID and admin title from the message
-    if len(message.command) > 1:
-        user = message.command[1]
-        admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "champu"
-    else:
-        # Fall back to extracting user from replied message
-        user = await extract_user(message)
-        admin_title = "champu"
-
-    if not user:
-        return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ.")
-
+async def promoteFunc(update: Update, context: CallbackContext):
+    # Extract user ID and admin title from the command
     try:
-        user_id = int(user)  # Try to convert to integer (in case of user ID)
-    except ValueError:
-        # If it's not a user ID, assume it's a username and extract the user
+        # Check if the command is a reply to a message
+        if update.message.reply_to_message:
+            user_id = update.message.reply_to_message.from_user.id
+            custom_title = " ".join(context.args) if context.args else "champu"
+        else:
+            # Extract user ID and title from the command arguments
+            if len(context.args) < 1:
+                await update.message.reply_text("Please reply to a user or provide a user ID/username.")
+                return
+            user_id = context.args[0]
+            custom_title = " ".join(context.args[1:]) if len(context.args) > 1 else "champu"
+
+        # Ensure the user ID is valid
         try:
-            user_obj = await app.get_users(user)
-            user_id = user_obj.id
-        except Exception as e:
-            logger.error(f"Error extracting user: {e}")
-            return await message.reply_text("ɪɴᴠᴀʟɪᴅ ᴜsᴇʀ ɪᴅ ᴏʀ ᴜsᴇʀɴᴀᴍᴇ.")
+            user_id = int(user_id)  # Try to convert to integer (in case of user ID)
+        except ValueError:
+            # If it's not a user ID, assume it's a username and extract the user
+            try:
+                user = await context.bot.get_chat_member(update.message.chat_id, user_id)
+                user_id = user.user.id
+            except BadRequest:
+                await update.message.reply_text("Invalid user ID or username.")
+                return
 
-    # Ensure the bot has the necessary permissions
-    bot = (await app.get_chat_member(message.chat.id, app.id)).privileges
-    if not bot or not bot.can_promote_members:
-        return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
+        # Ensure the bot has the necessary permissions
+        bot_member = await context.bot.get_chat_member(update.message.chat_id, context.bot.id)
+        if bot_member.status != ChatMemberStatus.ADMINISTRATOR or not bot_member.can_promote_members:
+            await update.message.reply_text("I don't have permission to promote users.")
+            return
 
-    # Check if the user is the bot itself
-    if user_id == app.id:
-        return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
+        # Promote the user with the custom title
+        await context.bot.promote_chat_member(
+            chat_id=update.message.chat_id,
+            user_id=user_id,
+            can_change_info=True,
+            can_delete_messages=True,
+            can_invite_users=True,
+            can_restrict_members=True,
+            can_pin_messages=True,
+            can_promote_members=True,
+            custom_title=custom_title,  # Set custom admin title
+        )
 
-    # Promote the user
-    try:
-        if message.command[0][0] == "f":  # Full promote
-            await message.chat.promote_member(
-                user_id=user_id,
-                privileges=ChatPrivileges(
-                    can_change_info=bot.can_change_info,
-                    can_invite_users=bot.can_invite_users,
-                    can_delete_messages=bot.can_delete_messages,
-                    can_restrict_members=bot.can_restrict_members,
-                    can_pin_messages=bot.can_pin_messages,
-                    can_promote_members=bot.can_promote_members,
-                    can_manage_chat=bot.can_manage_chat,
-                    can_manage_video_chats=bot.can_manage_video_chats,
-                ),
-            )
-            await message.chat.set_administrator_title(user_id, admin_title)
-            return await message.reply_text(f"ғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ! {user_obj.mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
-        else:  # Normal promote
-            await message.chat.promote_member(
-                user_id=user_id,
-                privileges=ChatPrivileges(
-                    can_change_info=False,
-                    can_invite_users=bot.can_invite_users,
-                    can_delete_messages=bot.can_delete_messages,
-                    can_restrict_members=False,
-                    can_pin_messages=False,
-                    can_promote_members=False,
-                    can_manage_chat=bot.can_manage_chat,
-                    can_manage_video_chats=bot.can_manage_video_chats,
-                ),
-            )
-            await message.chat.set_administrator_title(user_id, admin_title)
-            return await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_obj.mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
+        # Notify the chat about the promotion
+        user_mention = f"[{user.user.first_name}](tg://user?id={user_id})"
+        await update.message.reply_text(f"Promoted {user_mention} with title: {custom_title}", parse_mode="Markdown")
+
     except Exception as e:
-        logger.error(f"Error promoting user: {e}")
-        return await message.reply_text("ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ.")
+        await update.message.reply_text(f"Failed to promote user: {e}")
 
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
