@@ -255,47 +255,75 @@ async def unban_func(_, message: Message):
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private & ~BANNED_USERS)
 @adminsOnly("can_promote_members")
 async def promoteFunc(_, message: Message):
-    user_id = await extract_user(message)
-    if not user_id:
+    # Extract user ID and admin title from the message
+    if len(message.command) > 1:
+        user = message.command[1]
+        admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "champu"
+    else:
+        # Fall back to extracting user from replied message
+        user = await extract_user(message)
+        admin_title = "champu"
+
+    if not user:
         return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ.")
+
+    try:
+        user_id = int(user)  # Try to convert to integer (in case of user ID)
+    except ValueError:
+        # If it's not a user ID, assume it's a username and extract the user
+        try:
+            user_obj = await app.get_users(user)
+            user_id = user_obj.id
+        except Exception as e:
+            logger.error(f"Error extracting user: {e}")
+            return await message.reply_text("ɪɴᴠᴀʟɪᴅ ᴜsᴇʀ ɪᴅ ᴏʀ ᴜsᴇʀɴᴀᴍᴇ.")
+
+    # Ensure the bot has the necessary permissions
     bot = (await app.get_chat_member(message.chat.id, app.id)).privileges
+    if not bot or not bot.can_promote_members:
+        return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
+
+    # Check if the user is the bot itself
     if user_id == app.id:
         return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
-    if not bot:
-        return await message.reply_text("ɪ'ᴍ ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪs ᴄʜᴀᴛ.")
-    if not bot.can_promote_members:
-        return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs")
-    user = await app.get_users(user_id)  # Get the user object
-    umention = user.mention  # Get the mention attribute from the user object
-    if message.command[0][0] == "f":
-        await message.chat.promote_member(
-            user_id=user.id,
-            privileges=ChatPrivileges(
-                can_change_info=bot.can_change_info,
-                can_invite_users=bot.can_invite_users,
-                can_delete_messages=bot.can_delete_messages,
-                can_restrict_members=bot.can_restrict_members,
-                can_pin_messages=bot.can_pin_messages,
-                can_promote_members=bot.can_promote_members,
-                can_manage_chat=bot.can_manage_chat,
-                can_manage_video_chats=bot.can_manage_video_chats,
-            ),
-        )
-        return await message.reply_text(f"ғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ! {umention}")
-    await message.chat.promote_member(
-        user_id=user.id,
-        privileges=ChatPrivileges(
-            can_change_info=False,
-            can_invite_users=bot.can_invite_users,
-            can_delete_messages=bot.can_delete_messages,
-            can_restrict_members=False,
-            can_pin_messages=False,
-            can_promote_members=False,
-            can_manage_chat=bot.can_manage_chat,
-            can_manage_video_chats=bot.can_manage_video_chats,
-        ),
-    )
-    await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {umention}")
+
+    # Promote the user
+    try:
+        if message.command[0][0] == "f":  # Full promote
+            await message.chat.promote_member(
+                user_id=user_id,
+                privileges=ChatPrivileges(
+                    can_change_info=bot.can_change_info,
+                    can_invite_users=bot.can_invite_users,
+                    can_delete_messages=bot.can_delete_messages,
+                    can_restrict_members=bot.can_restrict_members,
+                    can_pin_messages=bot.can_pin_messages,
+                    can_promote_members=bot.can_promote_members,
+                    can_manage_chat=bot.can_manage_chat,
+                    can_manage_video_chats=bot.can_manage_video_chats,
+                ),
+            )
+            await message.chat.set_administrator_title(user_id, admin_title)
+            return await message.reply_text(f"ғᴜʟʟʏ ᴘʀᴏᴍᴏᴛᴇᴅ! {user_obj.mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
+        else:  # Normal promote
+            await message.chat.promote_member(
+                user_id=user_id,
+                privileges=ChatPrivileges(
+                    can_change_info=False,
+                    can_invite_users=bot.can_invite_users,
+                    can_delete_messages=bot.can_delete_messages,
+                    can_restrict_members=False,
+                    can_pin_messages=False,
+                    can_promote_members=False,
+                    can_manage_chat=bot.can_manage_chat,
+                    can_manage_video_chats=bot.can_manage_video_chats,
+                ),
+            )
+            await message.chat.set_administrator_title(user_id, admin_title)
+            return await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_obj.mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
+    except Exception as e:
+        logger.error(f"Error promoting user: {e}")
+        return await message.reply_text("ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ.")
 
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
