@@ -309,8 +309,7 @@ async def promoteFunc(client: Client, message: Message):
                         can_promote_members=True,
                         can_manage_chat=True,
                         can_manage_video_chats=True,
-                    ),
-                    title=admin_title  # Set the admin title here
+                    )
                 )
             else:  # Normal promote
                 await client.promote_chat_member(
@@ -325,9 +324,15 @@ async def promoteFunc(client: Client, message: Message):
                         can_promote_members=False,
                         can_manage_chat=True,
                         can_manage_video_chats=True,
-                    ),
-                    title=admin_title  # Set the admin title here
+                    )
                 )
+
+            # Set the admin title
+            await client.set_administrator_title(
+                chat_id=message.chat.id,
+                user_id=user_id,
+                title=admin_title
+            )
 
             # Notify the chat about the promotion
             user_mention = (await client.get_users(user_id)).mention
