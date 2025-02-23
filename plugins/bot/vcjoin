@@ -1,81 +1,77 @@
-from pyrogram.handlers import ChatMemberUpdatedHandler
-from pyrogram.types import ChatMemberUpdated, Message
-from typing import Union, List
-from pyrogram import Client, filters
+import asyncio
+import logging
 from ChampuMusic import app
+from pyrogram import Client, filters
+from pyrogram.enums import ChatAction, ChatMemberStatus
+from pyrogram.errors import FloodWait
+from pytgcalls import PyTgCalls
+from pytgcalls.types import Update, UpdatedGroupCallParticipant, GroupCallParticipant
+from config import OWNER_ID
+from typing import Optional
 
-# Default state for /infovc
-infovc_enabled = True  # Default enabled
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Command decorator
-def command(commands: Union[str, List[str]]):
-    return filters.command(commands, prefixes=["/"])
+async def participant_handler(_: PyTgCalls, update: Update):
+    if not isinstance(update, UpdatedGroupCallParticipant):
+        return
 
-# Command to toggle /infovc on/off
-@app.on_message(command(["infovc"]))
-async def toggle_infovc(client: Client, message: Message):
-    global infovc_enabled
-    if len(message.command) > 1:
-        state = message.command[1].lower()
-        if state == "on":
-            infovc_enabled = True
-            await message.reply("✅ Voice chat join notifications are now enabled.")
-        elif state == "off":
-            infovc_enabled = False
-            await message.reply("❌ Voice chat join notifications are now disabled.")
-        else:
-            await message.reply("⚠️ Usage: /infovc on or /infovc off")
-    else:
-        await message.reply("⚠️ Usage: /infovc on or /infovc off")
-
-# Handler to notify when users join voice chats
-async def user_joined_voice_chat(client: Client, chat_member_updated: ChatMemberUpdated):
-    global infovc_enabled
-
-    if not infovc_enabled:
+    participant = update.participant
+    if participant.action != GroupCallParticipant.Action.JOINED:
         return
 
     try:
-        chat = chat_member_updated.chat
-        user = chat_member_updated.new_chat_member.user
+        # Fetch chat title
+        chat_title = await get_chat_title(update.chat_id)
 
-        if not chat or not user:
-            return
+        # Fetch user details
+        user_mention = await get_user_mention(participant.user_id)
 
-        # Ensure old_chat_member and new_chat_member are not None
-        old_chat_member = chat_member_updated.old_chat_member
-        new_chat_member = chat_member_updated.new_chat_member
+        # Prepare the message
+        message_text = f"""
+#NewVoiceChatParticipant
+• User ID: <code>{participant.user_id}</code>
+• Mention: {user_mention}
+• Muted: <code>{participant.muted}</code>
+• Muted by Admin: <code>{participant.muted_by_admin}</code>
+• Video: <code>{participant.video}</code>
+• Screen Sharing: <code>{participant.screen_sharing}</code>
+• Video Camera: <code>{participant.video_camera}</code>
+• Volume: <code>{participant.volume}%</code>
+"""
 
-        if not old_chat_member or not new_chat_member:
-            return
+        # Send the message
+        sent_message = await app.send_message(
+            chat_id=update.chat_id,
+            text=message_text,
+            disable_web_page_preview=True
+        )
 
-        # Debugging logs
-        print(f"🔍 ChatMemberUpdated Event Detected!")
-        print(f"📌 Old Status: {old_chat_member.status}")
-        print(f"📌 New Status: {new_chat_member.status}")
+        # Delete the message after 20 seconds
+        await asyncio.sleep(20)
+        await sent_message.delete()
 
-        # Check if the user joined a voice chat
-        old_status = old_chat_member.status
-        new_status = new_chat_member.status
-
-        if old_status in ["left", "kicked", "member"] and new_status == "voice_chat_participant":
-            # Construct the message with user mention
-            text = (
-                f"**#JoinVoiceChat**\n"
-                f"👤 **Name:** {user.mention}\n"
-                f"🆔 **ID:** `{user.id}`\n"
-                f"🎤 **Action:** Joined the voice chat"
-            )
-
-            # Debug: Log the message before sending
-            print(f"📨 Sending Message: {text}")
-
-            # Send the message to the group
-            await client.send_message(chat.id, text)
-        else:
-            print("⚠️ User did not join voice chat.")
+    except FloodWait as fw:
+        logger.warning(f"FloodWait: Sleeping for {fw.value} seconds")
+        await asyncio.sleep(int(fw.value))
     except Exception as e:
-        print(f"⚠️ Error in user_joined_voice_chat: {e}")
+        logger.error(f"Error in participant_handler: {e}", exc_info=True)
 
-# Add the handler for chat member updates
-app.add_handler(ChatMemberUpdatedHandler(user_joined_voice_chat))
+async def get_chat_title(chat_id: int) -> str:
+    """Fetch the chat title or return the chat ID as a fallback."""
+    try:
+        chat = await app.get_chat(chat_id)
+        return chat.title
+    except Exception as e:
+        logger.warning(f"Failed to fetch chat title for {chat_id}: {e}")
+        return str(chat_id)
+
+async def get_user_mention(user_id: int) -> str:
+    """Fetch the user mention or return a fallback mention."""
+    try:
+        user = await app.get_users(user_id)
+        return user.mention if user.mention else f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
+    except Exception as e:
+        logger.warning(f"Failed to fetch user mention for {user_id}: {e}")
+        return f"<a href='tg://user?id={user_id}'>User</a>"
