@@ -276,6 +276,9 @@ async def promoteFunc(client: Client, message: Message):
         if not user:
             return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
 
+        # Initialize user_obj to None
+        user_obj = None
+
         try:
             user_id = int(user)  # Try to convert to integer (in case of user ID)
         except ValueError:
@@ -288,9 +291,12 @@ async def promoteFunc(client: Client, message: Message):
                 return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
 
         # Ensure the bot has the necessary permissions
-        bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
-        if not bot or not bot.can_promote_members:
-            return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇᴍʙᴇʀs.")
+        try:
+            bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
+            if not bot or not bot.can_promote_members:
+                return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇᴍʙᴇʀs.")
+        except ChatAdminRequired:
+            return await message.reply_text("ɪ ɴᴇᴇᴅ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴡɪᴛʜ ᴛʜᴇ 'can_promote_members' ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
 
         # Check if the user is the bot itself
         if user_id == client.me.id:
@@ -300,9 +306,12 @@ async def promoteFunc(client: Client, message: Message):
         try:
             member = await client.get_chat_member(message.chat.id, user_id)
             if member.status == "left" or member.status == "kicked":
-                return await message.reply_text(f"ᴜsᴇʀ {user_obj.mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
+                # Use user_obj.mention if available, otherwise use the user ID
+                user_mention = user_obj.mention if user_obj else f"ᴜsᴇʀ ɪᴅ {user_id}"
+                return await message.reply_text(f"{user_mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
         except UserNotParticipant:
-            return await message.reply_text(f"ᴜsᴇʀ {user_obj.mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
+            user_mention = user_obj.mention if user_obj else f"ᴜsᴇʀ ɪᴅ {user_id}"
+            return await message.reply_text(f"{user_mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
         except PeerIdInvalid:
             return await message.reply_text("ᴛʜᴇ ᴜsᴇʀ ɪᴅ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴛʜᴇ ʙᴏᴛ ʜᴀs ɴᴏᴛ ɪɴᴛᴇʀᴀᴄᴛᴇᴅ ᴡɪᴛʜ ᴛʜᴇᴍ ʏᴇᴛ.")
 
@@ -346,6 +355,8 @@ async def promoteFunc(client: Client, message: Message):
             user_mention = (await client.get_users(user_id)).mention
             await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
 
+        except ChatAdminRequired:
+            await message.reply_text("ɪ ɴᴇᴇᴅ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴡɪᴛʜ ᴛʜᴇ 'can_promote_members' ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
         except PeerIdInvalid:
             await message.reply_text("ᴛʜᴇ ᴜsᴇʀ ɪᴅ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴛʜᴇ ʙᴏᴛ ʜᴀs ɴᴏᴛ ɪɴᴛᴇʀᴀᴄᴛᴇᴅ ᴡɪᴛʜ ᴛʜᴇᴍ ʏᴇᴛ.")
         except Exception as e:
