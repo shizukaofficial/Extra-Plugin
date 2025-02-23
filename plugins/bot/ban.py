@@ -257,9 +257,6 @@ async def unban_func(_, message: Message):
         message = replied_message
     await message.reply_text(f"ᴜɴʙᴀɴɴᴇᴅ! {umention}")
 
-# Database to store custom titles (example using a dictionary; replace with a real database)
-custom_titles_db = {}
-
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
 @adminsOnly("can_promote_members")
 async def promoteFunc(client: Client, message: Message):
@@ -267,17 +264,14 @@ async def promoteFunc(client: Client, message: Message):
         # Extract user ID and admin title from the command
         if len(message.command) > 1:
             user = message.command[1]
-            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "Champu"
+            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "Admin"
         else:
             # Fall back to extracting user from replied message
             user = await extract_user(message)
-            admin_title = "Champu"
+            admin_title = "Admin"
 
         if not user:
-            return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
-
-        # Initialize user_obj to None
-        user_obj = None
+            return await message.reply_text("User not found.")
 
         try:
             user_id = int(user)  # Try to convert to integer (in case of user ID)
@@ -288,32 +282,25 @@ async def promoteFunc(client: Client, message: Message):
                 user_id = user_obj.id
             except Exception as e:
                 logger.error(f"Error extracting user: {e}")
-                return await message.reply_text("ᴜsᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ.")
+                return await message.reply_text("User not found.")
+
+        # Check if the user is in the group
+        try:
+            member = await client.get_chat_member(message.chat.id, user_id)
+            if member.status == ChatMemberStatus.LEFT or member.status == ChatMemberStatus.BANNED:
+                return await message.reply_text("User is not in the group.")
+        except Exception as e:
+            logger.error(f"Error checking user membership: {e}")
+            return await message.reply_text("User is not in the group.")
 
         # Ensure the bot has the necessary permissions
-        try:
-            bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
-            if not bot or not bot.can_promote_members:
-                return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇᴍʙᴇʀs.")
-        except ChatAdminRequired:
-            return await message.reply_text("ɪ ɴᴇᴇᴅ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴡɪᴛʜ ᴛʜᴇ 'can_promote_members' ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
+        bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
+        if not bot or not bot.can_promote_members:
+            return await message.reply_text("I don't have enough permissions to promote members.")
 
         # Check if the user is the bot itself
         if user_id == client.me.id:
-            return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
-
-        # Check if the user is a member of the group
-        try:
-            member = await client.get_chat_member(message.chat.id, user_id)
-            if member.status == "left" or member.status == "kicked":
-                # Use user_obj.mention if available, otherwise use the user ID
-                user_mention = user_obj.mention if user_obj else f"ᴜsᴇʀ ɪᴅ {user_id}"
-                return await message.reply_text(f"{user_mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
-        except UserNotParticipant:
-            user_mention = user_obj.mention if user_obj else f"ᴜsᴇʀ ɪᴅ {user_id}"
-            return await message.reply_text(f"{user_mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
-        except PeerIdInvalid:
-            return await message.reply_text("ᴛʜᴇ ᴜsᴇʀ ɪᴅ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴛʜᴇ ʙᴏᴛ ʜᴀs ɴᴏᴛ ɪɴᴛᴇʀᴀᴄᴛᴇᴅ ᴡɪᴛʜ ᴛʜᴇᴍ ʏᴇᴛ.")
+            return await message.reply_text("I can't promote myself.")
 
         # Promote the user
         try:
@@ -348,24 +335,24 @@ async def promoteFunc(client: Client, message: Message):
                     )
                 )
 
-            # Store the custom title in the database (for all group types)
-            custom_titles_db[(message.chat.id, user_id)] = admin_title
+            # Set the admin title
+            await client.set_administrator_title(
+                chat_id=message.chat.id,
+                user_id=user_id,
+                title=admin_title
+            )
 
             # Notify the chat about the promotion
             user_mention = (await client.get_users(user_id)).mention
-            await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
+            await message.reply_text(f"Promoted! {user_mention} with title: {admin_title}")
 
-        except ChatAdminRequired:
-            await message.reply_text("ɪ ɴᴇᴇᴅ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟᴇɢᴇs ᴡɪᴛʜ ᴛʜᴇ 'can_promote_members' ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
-        except PeerIdInvalid:
-            await message.reply_text("ᴛʜᴇ ᴜsᴇʀ ɪᴅ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴛʜᴇ ʙᴏᴛ ʜᴀs ɴᴏᴛ ɪɴᴛᴇʀᴀᴄᴛᴇᴅ ᴡɪᴛʜ ᴛʜᴇᴍ ʏᴇᴛ.")
         except Exception as e:
             logger.error(f"Error promoting user: {e}")
-            await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ: {e}")
+            await message.reply_text(f"Failed to promote user: {e}")
 
     except Exception as e:
         logger.error(f"Unexpected error in promoteFunc: {e}")
-        await message.reply_text(f"ᴀɴ ᴜɴᴇxᴘᴇᴄᴛᴇᴅ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {e}")
+        await message.reply_text(f"An unexpected error occurred: {e}")
 
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
