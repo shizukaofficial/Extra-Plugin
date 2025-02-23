@@ -225,7 +225,13 @@ async def banFunc(_, message: Message):
 @app.on_message(filters.command("unban") & ~filters.private & ~BANNED_USERS)
 @adminsOnly("can_restrict_members")
 async def unban_func(_, message: Message):
-    user_id = await extract_user(message)
+    # Extract user ID from the message text if it's provided directly
+    if len(message.command) > 1:
+        user_id = message.command[1]
+    else:
+        # Fall back to the extract_user function
+        user_id = await extract_user(message)
+    
     if not user_id:
         return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ. ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴜsᴇʀɴᴀᴍᴇ/ɪᴅ.")
 
