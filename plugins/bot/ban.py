@@ -4,7 +4,7 @@ from contextlib import suppress
 from string import ascii_lowercase
 from typing import Dict, Union
 from pyrogram import Client, filters
-from pyrogram.enums import ChatMembersFilter, ChatMemberStatus
+from pyrogram.enums import ChatMembersFilter, ChatMemberStatus, ChatType
 from pyrogram.types import (
     CallbackQuery,
     ChatPermissions,
@@ -257,6 +257,9 @@ async def unban_func(_, message: Message):
         message = replied_message
     await message.reply_text(f"ᴜɴʙᴀɴɴᴇᴅ! {umention}")
 
+# Database to store custom titles (example using a dictionary; replace with a real database)
+custom_titles_db = {}
+
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
 @adminsOnly("can_promote_members")
 async def promoteFunc(client: Client, message: Message):
@@ -284,15 +287,6 @@ async def promoteFunc(client: Client, message: Message):
                 logger.error(f"Error extracting user: {e}")
                 return await message.reply_text("User not found.")
 
-        # Check if the user is in the group
-        try:
-            member = await client.get_chat_member(message.chat.id, user_id)
-            if member.status == ChatMemberStatus.LEFT or member.status == ChatMemberStatus.BANNED:
-                return await message.reply_text("User is not in the group.")
-        except Exception as e:
-            logger.error(f"Error checking user membership: {e}")
-            return await message.reply_text("User is not in the group.")
-
         # Ensure the bot has the necessary permissions
         bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
         if not bot or not bot.can_promote_members:
@@ -301,6 +295,14 @@ async def promoteFunc(client: Client, message: Message):
         # Check if the user is the bot itself
         if user_id == client.me.id:
             return await message.reply_text("I can't promote myself.")
+
+        # Check if the user is a member of the group
+        try:
+            member = await client.get_chat_member(message.chat.id, user_id)
+            if member.status == "left" or member.status == "kicked":
+                return await message.reply_text(f"User {user_obj.mention} is not in this group. They must join first to be promoted.")
+        except UserNotParticipant:
+            return await message.reply_text(f"User {user_obj.mention} is not in this group. They must join first to be promoted.")
 
         # Promote the user
         try:
@@ -335,17 +337,34 @@ async def promoteFunc(client: Client, message: Message):
                     )
                 )
 
-            # Set the admin title
-            await client.set_administrator_title(
-                chat_id=message.chat.id,
-                user_id=user_id,
-                title=admin_title
-            )
+            # Store the custom title in the database (even for basic groups)
+            custom_titles_db[(message.chat.id, user_id)] = admin_title
+
+            # Check if the chat is a supergroup
+            chat = await client.get_chat(message.chat.id)
+            is_supergroup = chat.type == ChatType.SUPERGROUP
+
+            # Set the admin title only if the chat is a supergroup
+            if is_supergroup:
+                try:
+                    await client.set_administrator_title(
+                        chat_id=message.chat.id,
+                        user_id=user_id,
+                        title=admin_title
+                    )
+                except Exception as e:
+                    logger.error(f"Error setting admin title: {e}")
+                    await message.reply_text(f"Failed to set admin title: {e}")
 
             # Notify the chat about the promotion
             user_mention = (await client.get_users(user_id)).mention
-            await message.reply_text(f"Promoted! {user_mention} with title: {admin_title}")
+            if is_supergroup:
+                await message.reply_text(f"Promoted! {user_mention} with title: {admin_title}")
+            else:
+                await message.reply_text(f"Promoted! {user_mention} with title: {admin_title} (Note: Custom titles are not officially supported in this chat type).")
 
+        except PeerIdInvalid:
+            await message.reply_text("The user is not in this group. They must join first to be promoted.")
         except Exception as e:
             logger.error(f"Error promoting user: {e}")
             await message.reply_text(f"Failed to promote user: {e}")
