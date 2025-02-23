@@ -83,35 +83,42 @@ async def extract_user(message: Message) -> Union[int, str, None]:
         return None
 
     # Check if the message contains entities (e.g., mentions, user IDs)
-    if not message.entities:
-        return None
-
-    # Extract user ID or username from the message entities
-    try:
-        # If the message starts with a command (e.g., "/unban"), skip the first entity (the command itself)
-        if message.text.startswith("/"):
-            if len(message.entities) > 1:
-                msg_entities = message.entities[1]
+    if message.entities:
+        try:
+            # If the message starts with a command (e.g., "/unban"), skip the first entity (the command itself)
+            if message.text.startswith("/"):
+                if len(message.entities) > 1:
+                    msg_entities = message.entities[1]
+                else:
+                    return None
             else:
-                return None
-        else:
-            msg_entities = message.entities[0]
+                msg_entities = message.entities[0]
 
-        # Check if the entity is a mention or text mention
-        if msg_entities.type in ["mention", "text_mention"]:
-            if msg_entities.type == "mention":
-                # Extract username from the mention (e.g., "@username")
-                username = message.text[msg_entities.offset : msg_entities.offset + msg_entities.length]
-                user = await app.get_users(username)
+            # Check if the entity is a mention or text mention
+            if msg_entities.type in ["mention", "text_mention"]:
+                if msg_entities.type == "mention":
+                    # Extract username from the mention (e.g., "@username")
+                    username = message.text[msg_entities.offset : msg_entities.offset + msg_entities.length]
+                    user = await app.get_users(username)
+                    return user.id
+                elif msg_entities.type == "text_mention":
+                    # Extract user ID from the text mention
+                    return msg_entities.user.id
+
+        except (IndexError, AttributeError, KeyError) as e:
+            logger.error(f"Error extracting user: {e}")
+            return None
+
+    # If no entities are found, try to extract the username from the command arguments
+    if len(message.command) > 1:
+        user_arg = message.command[1]
+        if user_arg.startswith("@"):
+            try:
+                user = await app.get_users(user_arg)
                 return user.id
-            elif msg_entities.type == "text_mention":
-                # Extract user ID from the text mention
-                return msg_entities.user.id
-
-    except (IndexError, AttributeError, KeyError) as e:
-        logger.error(f"Error extracting user: {e}")
-        return None
-
+            except Exception as e:
+                logger.error(f"Error extracting user from command argument: {e}")
+                return None
     return None
 
 async def get_warns_count() -> dict:
@@ -250,87 +257,6 @@ async def unban_func(_, message: Message):
     if replied_message:
         message = replied_message
     await message.reply_text(f"ᴜɴʙᴀɴɴᴇᴅ! {umention}")
-
-@app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
-@adminsOnly("can_promote_members")
-async def promoteFunc(client: Client, message: Message):
-    try:
-        # Extract user ID and admin title from the command
-        if len(message.command) > 1:
-            user = message.command[1]
-            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "champu"
-        else:
-            # Fall back to extracting user from replied message
-            user = await extract_user(message)
-            admin_title = "champu"
-
-        if not user:
-            return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ғɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ.")
-
-        try:
-            user_id = int(user)  # Try to convert to integer (in case of user ID)
-        except ValueError:
-            # If it's not a user ID, assume it's a username and extract the user
-            try:
-                user_obj = await client.get_users(user)
-                user_id = user_obj.id
-            except Exception as e:
-                logger.error(f"Error extracting user: {e}")
-                return await message.reply_text("ɪɴᴠᴀʟɪᴅ ᴜsᴇʀ ɪᴅ ᴏʀ ᴜsᴇʀɴᴀᴍᴇ.")
-
-        # Ensure the bot has the necessary permissions
-        bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
-        if not bot or not bot.can_promote_members:
-            return await message.reply_text("ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ᴘᴇʀᴍɪssɪᴏɴs ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀs.")
-
-        # Check if the user is the bot itself
-        if user_id == client.me.id:
-            return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
-
-        # Promote the user
-        try:
-            if message.command[0][0] == "f":  # Full promote
-                await client.promote_chat_member(
-                    chat_id=message.chat.id,
-                    user_id=user_id,
-                    privileges=ChatPrivileges(
-                        can_change_info=True,
-                        can_delete_messages=True,
-                        can_invite_users=True,
-                        can_restrict_members=True,
-                        can_pin_messages=True,
-                        can_promote_members=True,
-                        can_manage_chat=True,
-                        can_manage_video_chats=True,
-                    ),
-                )
-            else:  # Normal promote
-                await client.promote_chat_member(
-                    chat_id=message.chat.id,
-                    user_id=user_id,
-                    privileges=ChatPrivileges(
-                        can_change_info=False,
-                        can_delete_messages=True,
-                        can_invite_users=True,
-                        can_restrict_members=False,
-                        can_pin_messages=False,
-                        can_promote_members=False,
-                        can_manage_chat=True,
-                        can_manage_video_chats=True,
-                    ),
-                )
-
-            # Notify the chat about the promotion
-            user_mention = (await client.get_users(user_id)).mention
-            await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} ᴡɪᴛʜ ᴛɪᴛʟᴇ: {admin_title}")
-
-        except Exception as e:
-            logger.error(f"Error promoting user: {e}")
-            await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ: {e}")
-
-    except Exception as e:
-        logger.error(f"Unexpected error in promoteFunc: {e}")
-        await message.reply_text(f"ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ: {e}")
 
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
