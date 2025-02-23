@@ -12,6 +12,7 @@ from pyrogram.types import (
     Message,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    ChatType
 )
 from pyrogram.errors import FloodWait, ChatAdminRequired, UserNotParticipant, InviteHashExpired, PeerIdInvalid
 from ChampuMusic import app
@@ -259,6 +260,7 @@ async def unban_func(_, message: Message):
 
 # Database to store custom titles (example using a dictionary; replace with a real database)
 custom_titles_db = {}
+
 @app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
 @adminsOnly("can_promote_members")
 async def promoteFunc(client: Client, message: Message):
@@ -307,7 +309,7 @@ async def promoteFunc(client: Client, message: Message):
 
         # Check if the chat is a supergroup
         chat = await client.get_chat(message.chat.id)
-        is_supergroup = chat.type == ChatType.SUPERGROUP
+        is_supergroup = chat.type == ChatType.SUPERGROUP  # Use ChatType.SUPERGROUP
 
         # Promote the user
         try:
