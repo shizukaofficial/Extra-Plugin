@@ -258,6 +258,89 @@ async def unban_func(_, message: Message):
         message = replied_message
     await message.reply_text(f"ᴜɴʙᴀɴɴᴇᴅ! {umention}")
 
+@app.on_message(filters.command(["promote", "fullpromote"]) & ~filters.private)
+@adminsOnly("can_promote_members")
+async def promoteFunc(client: Client, message: Message):
+    try:
+        # Extract user ID and admin title from the command
+        if len(message.command) > 1:
+            user = message.command[1]
+            admin_title = " ".join(message.command[2:]) if len(message.command) > 2 else "Admin"
+        else:
+            # Fall back to extracting user from replied message
+            user = await extract_user(message)
+            admin_title = "Admin"
+
+        if not user:
+            return await message.reply_text("User not found.")
+
+        try:
+            user_id = int(user)  # Try to convert to integer (in case of user ID)
+        except ValueError:
+            # If it's not a user ID, assume it's a username and extract the user
+            try:
+                user_obj = await client.get_users(user)
+                user_id = user_obj.id
+            except Exception as e:
+                logger.error(f"Error extracting user: {e}")
+                return await message.reply_text("User not found.")
+
+        # Ensure the bot has the necessary permissions
+        bot = (await client.get_chat_member(message.chat.id, client.me.id)).privileges
+        if not bot or not bot.can_promote_members:
+            return await message.reply_text("I don't have enough permissions to promote members.")
+
+        # Check if the user is the bot itself
+        if user_id == client.me.id:
+            return await message.reply_text("I can't promote myself.")
+
+        # Promote the user
+        try:
+            if message.command[0][0] == "f":  # Full promote
+                await client.promote_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=user_id,
+                    privileges=ChatPrivileges(
+                        can_change_info=True,
+                        can_delete_messages=True,
+                        can_invite_users=True,
+                        can_restrict_members=True,
+                        can_pin_messages=True,
+                        can_promote_members=True,
+                        can_manage_chat=True,
+                        can_manage_video_chats=True,
+                    ),
+                    title=admin_title  # Set the admin title here
+                )
+            else:  # Normal promote
+                await client.promote_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=user_id,
+                    privileges=ChatPrivileges(
+                        can_change_info=False,
+                        can_delete_messages=True,
+                        can_invite_users=True,
+                        can_restrict_members=False,
+                        can_pin_messages=False,
+                        can_promote_members=False,
+                        can_manage_chat=True,
+                        can_manage_video_chats=True,
+                    ),
+                    title=admin_title  # Set the admin title here
+                )
+
+            # Notify the chat about the promotion
+            user_mention = (await client.get_users(user_id)).mention
+            await message.reply_text(f"Promoted! {user_mention} with title: {admin_title}")
+
+        except Exception as e:
+            logger.error(f"Error promoting user: {e}")
+            await message.reply_text(f"Failed to promote user: {e}")
+
+    except Exception as e:
+        logger.error(f"Unexpected error in promoteFunc: {e}")
+        await message.reply_text(f"An unexpected error occurred: {e}")
+
 @app.on_message(filters.command("purge") & ~filters.private)
 @adminsOnly("can_delete_messages")
 async def purgeFunc(_, message: Message):
