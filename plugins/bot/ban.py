@@ -28,7 +28,6 @@ from ChampuMusic.utils.functions import (
 from utils.permissions import adminsOnly, member_permissions
 from config import BANNED_USERS
 
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -294,23 +293,31 @@ async def promoteFunc(client: Client, message: Message):
                 await client.promote_chat_member(
                     chat_id=message.chat.id,
                     user_id=user_id,
-                    can_change_info=True,
-                    can_delete_messages=True,
-                    can_invite_users=True,
-                    can_restrict_members=True,
-                    can_pin_messages=True,
-                    can_promote_members=True,
+                    privileges=ChatPrivileges(
+                        can_change_info=True,
+                        can_delete_messages=True,
+                        can_invite_users=True,
+                        can_restrict_members=True,
+                        can_pin_messages=True,
+                        can_promote_members=True,
+                        can_manage_chat=True,
+                        can_manage_video_chats=True,
+                    ),
                 )
             else:  # Normal promote
                 await client.promote_chat_member(
                     chat_id=message.chat.id,
                     user_id=user_id,
-                    can_change_info=False,
-                    can_delete_messages=True,
-                    can_invite_users=True,
-                    can_restrict_members=False,
-                    can_pin_messages=False,
-                    can_promote_members=False,
+                    privileges=ChatPrivileges(
+                        can_change_info=False,
+                        can_delete_messages=True,
+                        can_invite_users=True,
+                        can_restrict_members=False,
+                        can_pin_messages=False,
+                        can_promote_members=False,
+                        can_manage_chat=True,
+                        can_manage_video_chats=True,
+                    ),
                 )
 
             # Notify the chat about the promotion
