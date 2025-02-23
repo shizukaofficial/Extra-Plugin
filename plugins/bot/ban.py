@@ -13,8 +13,7 @@ from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
-from pyrogram.errors import FloodWait, ChatAdminRequired, UserNotParticipant, InviteHashExpired
-
+from pyrogram.errors import FloodWait, ChatAdminRequired, UserNotParticipant, InviteHashExpired, PeerIdInvalid
 from ChampuMusic import app
 from ChampuMusic.misc import SUDOERS
 from ChampuMusic.core.mongo import mongodb
@@ -294,6 +293,16 @@ async def promoteFunc(client: Client, message: Message):
         if user_id == client.me.id:
             return await message.reply_text("ɪ ᴄᴀɴ'ᴛ ᴘʀᴏᴍᴏᴛᴇ ᴍʏsᴇʟғ.")
 
+        # Check if the user is a member of the group
+        try:
+            member = await client.get_chat_member(message.chat.id, user_id)
+            if member.status == "left" or member.status == "kicked":
+                # User is not in the group
+                return await message.reply_text(f"ᴜsᴇʀ {user_obj.mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
+        except UserNotParticipant:
+            # User is not in the group
+            return await message.reply_text(f"ᴜsᴇʀ {user_obj.mention} ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
+
         # Check if the chat is a supergroup
         chat = await client.get_chat(message.chat.id)
         is_supergroup = chat.type == "supergroup"
@@ -346,6 +355,8 @@ async def promoteFunc(client: Client, message: Message):
             else:
                 await message.reply_text(f"ᴘʀᴏᴍᴏᴛᴇᴅ! {user_mention} (ᴄᴜsᴛᴏᴍ ᴛɪᴛʟᴇs ᴀʀᴇ ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ɪɴ ᴛʜɪs ᴄʜᴀᴛ ᴛʏᴘᴇ).")
 
+        except PeerIdInvalid:
+            await message.reply_text("The user ɪs ɴᴏᴛ ɪɴ ᴛʜɪs ɢʀᴏᴜᴘ. ᴛʜᴇʏ ᴍᴜsᴛ ᴊᴏɪɴ ғɪʀsᴛ ᴛᴏ ʙᴇ ᴘʀᴏᴍᴏᴛᴇᴅ.")
         except Exception as e:
             logger.error(f"Error promoting user: {e}")
             await message.reply_text(f"ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴍᴏᴛᴇ ᴜsᴇʀ: {e}")
