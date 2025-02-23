@@ -4,7 +4,7 @@ from contextlib import suppress
 from string import ascii_lowercase
 from typing import Dict, Union
 from pyrogram import Client, filters
-from pyrogram.enums import ChatMembersFilter, ChatMemberStatus
+from pyrogram.enums import ChatMembersFilter, ChatMemberStatus, ChatType
 from pyrogram.types import (
     CallbackQuery,
     ChatPermissions,
@@ -12,7 +12,6 @@ from pyrogram.types import (
     Message,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    ChatType
 )
 from pyrogram.errors import FloodWait, ChatAdminRequired, UserNotParticipant, InviteHashExpired, PeerIdInvalid
 from ChampuMusic import app
