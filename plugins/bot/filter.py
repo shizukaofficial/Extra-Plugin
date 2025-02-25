@@ -115,7 +115,6 @@ async def save_filters(_, message):
                 return await message.reply_text(
                     "**ᴡʀᴏɴɢ ғᴏʀᴍᴀᴛᴛɪɴɢ, ᴄʜᴇᴄᴋ ᴛʜᴇ ʜᴇʟᴘ sᴇᴄᴛɪᴏɴ.**"
                 )
-        name = name.replace("_", " ")
         _filter = {
             "type": _type,
             "data": data,
