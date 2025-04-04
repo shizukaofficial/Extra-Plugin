@@ -1,10 +1,45 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from ChampuMusic import app
 from pyrogram.errors import UserNotParticipant
 from ChampuMusic.misc import SUDOERS
+from ChampuMusic.utils.database import store_conversation, get_original_user
+from config import LOGGER_ID
+
+# Message forwarding handler
+@app.on_message(filters.private & ~filters.me & ~filters.command("send"))
+async def forward_to_admin(client: Client, message: Message):
+    """Forward user messages to admin"""
+    try:
+        # Forward message to admin
+        forwarded_msg = await message.forward(LOGGER_ID)
+        # Store conversation context
+        await store_conversation(
+            original_user=message.from_user.id,
+            forwarded_msg_id=forwarded_msg.id
+        )
+    except Exception as e:
+        await message.reply_text(f"Error forwarding message: {e}")
+
+# Admin reply handler
+@app.on_message(filters.private & filters.me & filters.reply)
+async def handle_admin_reply(client: Client, message: Message):
+    """Forward admin replies back to original user"""
+    try:
+        original_user = await get_original_user(message.reply_to_message.id)
+        if original_user:
+            await client.send_message(
+                chat_id=original_user,
+                text=message.text,
+                reply_to_message_id=message.reply_to_message.id
+            )
+        else:
+            await message.reply_text("No original user found for this message")
+    except Exception as e:
+        await message.reply_text(f"Error handling reply: {e}")
 
 @app.on_message(filters.command("send") & SUDOERS)
+
 async def send_message(client, message):
     # Check if the command has the correct number of arguments
     if len(message.command) < 3:
