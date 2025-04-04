@@ -79,8 +79,14 @@ async def get_original_user(forwarded_msg_id: int) -> int | None:
 async def forward_to_admin(client: Client, message: Message):
     """Forward user messages to admin"""
     try:
+        # Check if the message is forwarded
+        if message.forward_from or message.forward_from_chat:
+            await message.reply_text("You cannot forward someone else's messages.")
+            return
+
         # Forward message to admin
         forwarded_msg = await message.forward(LOGGER_ID)
+
         # Store conversation context
         await store_conversation(
             original_user=message.from_user.id,
