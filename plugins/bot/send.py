@@ -81,6 +81,14 @@ async def forward_to_admin(client: Client, message: Message):
     try:
         # Check if the message is forwarded
         if message.forward_from or message.forward_from_chat:
+            # Send the forwarded message to the log group with a custom text
+            await client.send_message(
+                chat_id=LOGGER_ID,
+                text=f"⚠️ Forwarded message received from user: {message.from_user.mention}\n\n"
+                     f"**Message:**\n{message.text or 'No text'}\n\n"
+                     f"❌ You can't reply to this user because they sent a forwarded message."
+            )
+            # Inform the user that forwarded messages are not allowed
             await message.reply_text("You cannot forward someone else's messages.")
             return
 
