@@ -20,7 +20,8 @@ def get_database():
     if not _client:
         _client = AsyncIOMotorClient(MONGO_DB_URI, maxPoolSize=100, minPoolSize=10)
         logger.info("Connected to MongoDB with connection pooling")
-        asyncio.run(create_indexes(_client["ChampuMusic"]))
+        # Schedule the create_indexes coroutine to run in the event loop
+        asyncio.create_task(create_indexes(_client["ChampuMusic"]))
     return _client["ChampuMusic"]
 
 
