@@ -3,13 +3,13 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from ChampuMusic import app
 from pyrogram.errors import UserNotParticipant
 from ChampuMusic.misc import SUDOERS
+from config import LOGGER_ID
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 from config import MONGO_DB_URI
 import logging
 import asyncio
 
-LOGGER_ID = -1002150052681
 
 logger = logging.getLogger(__name__)
 
