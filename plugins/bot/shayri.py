@@ -68,8 +68,8 @@ async def help(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(
             [
             [
-              InlineKeyboardButton(text="Support Group", url=config.SUPPORT_GROUP),
-              InlineKeyboardButton(text="Support Channel", url=config.SUPPORT_CHANNEL),
+            #  InlineKeyboardButton(text="Support Group", url=config.SUPPORT_GROUP),
+             # InlineKeyboardButton(text="Support Channel", url=config.SUPPORT_CHANNEL),
             ],
             ]
         ),
