@@ -9,18 +9,8 @@ from ChampuMusic.utils.database import add_served_chat, get_assistant
 
 
 start_txt = """**
-✪ 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝗖𝗵𝗮𝗺𝗽𝘂 𝗥𝗲𝗽𝗼𝘀 ✪
-
-➲ ᴇᴀsʏ ʜᴇʀᴏᴋᴜ ᴅᴇᴘʟᴏʏᴍᴇɴᴛ ✰  
-➲ ɴᴏ ʙᴀɴ ɪssᴜᴇs ✰  
-➲ ᴜɴʟɪᴍɪᴛᴇᴅ ᴅʏɴᴏs ✰  
-➲ 𝟸𝟺/𝟽 ʟᴀɢ-ғʀᴇᴇ ✰
-
-► sᴇɴᴅ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ɪғ ʏᴏᴜ ғᴀᴄᴇ ᴀɴʏ ᴘʀᴏʙʟᴇᴍs!
+✪ 𝐏𝐀𝐇𝐋𝐄 𝐉𝐀 𝐍𝐎𝐁𝐈𝐓𝐀 𝐊𝐎 𝐏𝐀𝐏𝐀 𝐁𝐎𝐋 𝐊𝐄 𝐀𝐀 ✪!
 **"""
-
-
-
 
 @app.on_message(filters.command("repo"))
 async def start(_, msg):
@@ -29,22 +19,22 @@ async def start(_, msg):
           InlineKeyboardButton("ᴀᴅᴅ ᴍᴇ", url=f"https://t.me/{app.username}?startgroup=true")
         ],
         [
-          InlineKeyboardButton("ᴄʜᴧᴍᴘᴜ", url="https://t.me/TheChampu"),
-          InlineKeyboardButton("sʜɪᴠᴀɴsʜᴜ", url="https://t.me/TheShivanshu"),
+          InlineKeyboardButton("ɴᴏʙɪᴛᴧ", url="https://t.me/NOBITA_XD1"),
+          InlineKeyboardButton("ɴᴏʙɪᴛᴧ ᴋᴧ ʙʜᴧɪ", url="https://t.me/smartness_to_hai"),
           ],
                [
-                InlineKeyboardButton("ᴏᴡɴᴇʀ", url="https://t.me/itsmeshivanshu"),
+                InlineKeyboardButton("ᴄʜᴧɴɴᴇʟ", url="https://t.me/MUSIC_BOT_UPDATE"),
 
 ],[
-              InlineKeyboardButton("ᴍᴜsɪᴄ", url=f"https://github.com/TheChampu/ChampuMusic"),
-              InlineKeyboardButton("sᴛʀɪɴɢ", url=f"https://github.com/TheChampu/ChampuString"),
+              InlineKeyboardButton("ᴧʟʟ ʙᴏᴛs", url=f"https://t.me/MUSIC_BOT_UPDATE/377"),
+              InlineKeyboardButton("ɢꝛᴏᴜᴘ", url=f"https://t.me/OG_FRAINDS"),
               ],
 [
-              InlineKeyboardButton("sɪᴍᴘʟᴇ ᴍᴜsɪᴄ", url=f"https://github.com/TheChampu/TelegramMusicBot")
+              InlineKeyboardButton("sɪᴍᴘʟᴇ ᴍᴜsɪᴄ", url=f"https://t.me/Nayana_music_bot")
               ],
               [
-              InlineKeyboardButton("ᴍᴀɴᴀɢᴍᴇɴᴛ", url=f"https://github.com/TheChampu/ChampuManagment"),
-InlineKeyboardButton("ᴄʜᴀᴛʙᴏᴛ", url=f"https://github.com/TheChampu/ChatBot"),
+              InlineKeyboardButton("ᴍᴀɴᴀɢᴍᴇɴᴛ", url=f"https://t.me/shizukaXmusicXrobot"),
+InlineKeyboardButton("ᴄʜᴀᴛʙᴏᴛ", url=f"https://t.me/shizukaXmusicXrobot"),
 ]]
     
     reply_markup = InlineKeyboardMarkup(buttons)
